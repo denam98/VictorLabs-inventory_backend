@@ -1,0 +1,126 @@
+{
+    "E001": {
+        "code": "E001",
+        "STATUS": "401",
+        "DESCRIPTION": "Wrong username or password"
+    },
+    "E002": {
+        "code": "E002",
+        "STATUS": "401",
+        "DESCRIPTION": "Wrong username or password"
+    },
+    "default": {
+        "STATUS": "500",
+        "DESCRIPTION": "Internal Server Error"
+    },
+    "E003": {
+        "code": "E003",
+        "STATUS": "403",
+        "DESCRIPTION": "Invalid Token"
+    },
+    "E004": {
+        "code": "E004",
+        "STATUS": "401",
+        "DESCRIPTION": "Unauthorized Access"
+    },
+    "E005": {
+        "code": "E005",
+        "STATUS": "400",
+        "DESCRIPTION": "Bad Request"
+    },
+    "E006": {
+        "code": "E006",
+        "STATUS": "422",
+        "DESCRIPTION": "Email is already exist"
+    },
+    "E007": {
+        "code": "E007",
+        "STATUS": "422",
+        "DESCRIPTION": "Uuid is already exist"
+    },
+    "E008": {
+        "code": "E008",
+        "STATUS": "404",
+        "DESCRIPTION": "Resource not found"
+    },
+    "M11000": {
+        "code": "M11000",
+        "STATUS": "409",
+        "DESCRIPTION": "Duplicate key error"
+    },
+    "E009": {
+        "code": "E009",
+        "STATUS": "410",
+        "DESCRIPTION": "Name cannot be empty"
+    },
+    "E0010": {	
+        "code": "E0010",
+        "STATUS": "422",	
+        "DESCRIPTION": "Organization already exists"	
+    },	
+    "E0011": {
+        "code": "E0011",
+        "STATUS": "422",
+        "DESCRIPTION": "User Name already exist"
+    },
+    
+    "E0012":{	
+        "code": "E0012",
+        "STATUS": "404",	
+        "DESCRIPTION": "User not found"	
+    },	
+    "E0013":{	
+        "code": "E0013",
+        "STATUS": "500",	
+        "DESCRIPTION": "User limit exceed"	
+    },
+    "E0014":{
+        "code": "E0014",
+        "STATUS": "404",
+        "DESCRIPTION": "Stripe Result not found",
+        "message":"Stripe Result not found"
+    },
+    "E0015":{
+        "code": "E0015",
+        "STATUS": "500",
+        "DESCRIPTION": "Internal Server Error",
+        "message": "Internal Server Error"
+    },
+    "E0016":{
+        "code": "E0016",
+        "STATUS": "500",
+        "DESCRIPTION": "Internal Server Error",
+        "message": "MongoDB Error"
+    },
+    "E0017": {
+        "code": "E0017",
+        "STATUS": "400",
+        "DESCRIPTION": "Failed to download the file from s3"
+    },
+    "E0018": {
+        "code": "E0018",
+        "STATUS": "500",
+        "DESCRIPTION": "Delete failed"
+    },
+    "E0019": {	
+        "code": "E0019",
+        "STATUS": "422",	
+        "DESCRIPTION": "Error while changing user organization"	
+    },
+    "E0020": {	
+        "code": "E0020",
+        "STATUS": "422",	
+        "DESCRIPTION": "Error while resetting password"	
+    },
+    "E0021": {
+        "code": "E0021",
+        "STATUS": "410",
+        "DESCRIPTION": "Parameters are missing"
+    },
+    "E0022": {
+        "code": "E0022",
+        "STATUS": "422",
+        "DESCRIPTION": "File Upload Error"
+    }
+    
+}
