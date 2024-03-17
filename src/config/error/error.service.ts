@@ -29,7 +29,7 @@ export class ErrorService {
     return error;
   }
 
-  getErrConfig(): any {
+  get ErrConfig(): any {
     return this.config;
   }
 }

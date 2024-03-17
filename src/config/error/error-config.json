@@ -4,11 +4,7 @@
         "STATUS": "401",
         "DESCRIPTION": "Wrong username or password"
     },
-    "E002": {
-        "code": "E002",
-        "STATUS": "401",
-        "DESCRIPTION": "Wrong username or password"
-    },
+    
     "default": {
         "STATUS": "500",
         "DESCRIPTION": "Internal Server Error"
@@ -31,7 +27,7 @@
     "E006": {
         "code": "E006",
         "STATUS": "422",
-        "DESCRIPTION": "Email is already exist"
+        "DESCRIPTION": "Email or Username already exists"
     },
     "E007": {
         "code": "E007",
@@ -57,11 +53,6 @@
         "code": "E0010",
         "STATUS": "422",	
         "DESCRIPTION": "Organization already exists"	
-    },	
-    "E0011": {
-        "code": "E0011",
-        "STATUS": "422",
-        "DESCRIPTION": "User Name already exist"
     },
     
     "E0012":{	

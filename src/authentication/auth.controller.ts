@@ -1,4 +1,4 @@
-import { RegisterUserDTO } from 'src/common/dtos/register-user-dto';
+import { RegisterUserDTO } from 'src/common/dtos/register-user.dto';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { AuthService } from './auth.service';
 /*

@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  dev-db:
+    image: postgres:13
+    ports:
+      - 5434:5432
+    environment: 
+      POSTGRES_USER: ironman
+      POSTGRES_PASSWORD: stark123
+      POSTGRES_DB: surtex-dev
+    networks:
+      - surtex-net
+networks:
+  surtex-net:

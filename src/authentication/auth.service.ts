@@ -1,38 +1,38 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/*
-https://docs.nestjs.com/providers#services
-*/
-
 import { Injectable } from '@nestjs/common';
 import { UserService } from 'src/models/user/user.service';
 import * as bcrypt from 'bcrypt';
-import { User } from 'src/common/interfaces/user.interface';
 import { JwtService } from '@nestjs/jwt';
-import { RegisterUserDTO } from 'src/common/dtos/register-user-dto';
+import { User } from '@prisma/client';
+import { PostgresConfigService } from 'src/config/database/postgres/config.service';
+import { RegisterUserDTO } from 'src/common/dtos/dto';
+import { AppConfigService } from 'src/config/app/app-config.service';
+import { ErrorService } from 'src/config/error/error.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private userService: UserService,
     private jwtService: JwtService,
+    private postgreConfigService: PostgresConfigService,
+    private commonService: AppConfigService,
+    private errorService: ErrorService,
   ) {}
 
   async validateUser(username: string, password: string) {
-    const user = await this.userService.findUserByUsername(username);
+    const user: User = await this.userService.findUserByUsername(username);
     if (user && (await bcrypt.compare(password, user.password))) {
-      const { password, ...result } = user;
-      return result;
+      return this.commonService.exclude(user, ['password']);
     }
     return null;
   }
 
-  login(user: User) {
+  login(user: User): any {
     const payload = {
       username: user.username,
       sub: {
-        id: user.id,
+        id: user.userId,
         email: user.email,
-        role: user.role,
+        role: user.roleId,
       },
     };
 
@@ -43,13 +43,13 @@ export class AuthService {
     };
   }
 
-  refreshToken(user: User) {
+  refreshToken(user: User): any {
     const payload = {
       username: user.username,
       sub: {
-        id: user.id,
+        id: user.userId,
         email: user.email,
-        role: user.role,
+        role: user.roleId,
       },
     };
 
@@ -58,7 +58,12 @@ export class AuthService {
     };
   }
 
-  register(registerUserDto: RegisterUserDTO) {
-    return registerUserDto;
+  async register(registerUserDto: RegisterUserDTO): Promise<User> {
+    try {
+      const user: User = await this.userService.registerUser(registerUserDto);
+      return user;
+    } catch (error) {
+      throw error;
+    }
   }
 }
