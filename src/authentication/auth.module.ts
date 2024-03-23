@@ -3,9 +3,10 @@ import { AuthService } from './auth.service';
 import { Module } from '@nestjs/common';
 import { UserService } from 'src/models/user/user.service';
 import { JwtModule } from '@nestjs/jwt';
-import { LocalStrategy } from './strategies/local-strategy';
 import { JwtStrategy } from './strategies/jwt-strategy';
 import { RefreshTokenStrategy } from './strategies/refresh-token-strategy';
+import { RequestService } from 'src/common/services/request.service';
+import { LocalAuthStrategy } from './strategies/local-strategy';
 
 @Module({
   imports: [
@@ -18,9 +19,10 @@ import { RefreshTokenStrategy } from './strategies/refresh-token-strategy';
   providers: [
     AuthService,
     UserService,
-    LocalStrategy,
     JwtStrategy,
     RefreshTokenStrategy,
+    RequestService,
+    LocalAuthStrategy,
   ],
 })
 export class AuthModule {}
