@@ -1,4 +1,4 @@
-import { RegisterUserDTO } from 'src/common/dtos/register-user.dto';
+import { RegisterUserDTO, LoginDTO } from 'src/common/dtos/dto';
 import { AuthService } from './auth.service';
 /*
 https://docs.nestjs.com/controllers#controllers
@@ -14,7 +14,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { RefreshJwtGuard } from 'src/authentication/guards/refresh-jwt.guard';
-import { LoginDTO } from 'src/common/dtos/login.dto';
 
 @Controller('api/v1/auth')
 export class AuthController {
