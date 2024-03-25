@@ -8,7 +8,6 @@ import {
   Delete,
   Get,
   Param,
-  ParseIntPipe,
   Post,
   Put,
   UseGuards,
@@ -29,7 +28,7 @@ export class UserController {
 
   // @UseGuards(JwtAuthGuard)
   @Get('/:id')
-  getUser(@Param('id', ParseIntPipe) userId: string) {
+  getUser(@Param('id') userId: string) {
     return this.userService.getUser(userId);
   }
 

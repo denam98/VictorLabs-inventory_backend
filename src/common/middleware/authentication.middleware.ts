@@ -20,6 +20,11 @@ export class AuthenticationMiddleware implements NestMiddleware {
 
       if (decoded && decoded.sub && decoded.sub.id) {
         this.requestService.setUserId(decoded.sub.id);
+        this.errorService.printLog(
+          'info',
+          AuthenticationMiddleware.name,
+          'userId: ' + this.requestService.getUserId(),
+        );
       }
 
       next();

@@ -1,4 +1,3 @@
-import { RequestService } from './common/services/request.service';
 import { AppConfigModule } from './config/app/app-config.module';
 import { UserModule } from './models/user/user.module';
 import {
@@ -70,7 +69,7 @@ import * as path from 'path';
       ],
     }),
   ],
-  providers: [RequestService, AppService],
+  providers: [AppService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
