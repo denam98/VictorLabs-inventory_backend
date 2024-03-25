@@ -1,12 +1,11 @@
-import { RequestService } from './../services/request.service';
-import { Injectable, Logger, NestMiddleware } from '@nestjs/common';
+import { RequestService } from '../../config/app/request.service';
+import { Injectable, NestMiddleware } from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
 import * as jwt from 'jsonwebtoken';
 import { ErrorService } from 'src/config/error/error.service';
 
 @Injectable()
 export class AuthenticationMiddleware implements NestMiddleware {
-  private readonly logger = new Logger(AuthenticationMiddleware.name);
   constructor(
     private readonly requestService: RequestService,
     private readonly errorService: ErrorService,
@@ -21,7 +20,6 @@ export class AuthenticationMiddleware implements NestMiddleware {
 
       if (decoded && decoded.sub && decoded.sub.id) {
         this.requestService.setUserId(decoded.sub.id);
-        this.logger.log(decoded.sub.id);
       }
 
       next();

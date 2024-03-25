@@ -1,4 +1,3 @@
-import { RequestService } from './common/services/request.service';
 import { AppConfigModule } from './config/app/app-config.module';
 import { UserModule } from './models/user/user.module';
 import {
@@ -13,6 +12,12 @@ import { PostgresConfigModule } from './config/database/postgres/config.module';
 import { ErrorModule } from './config/error/error.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { AuthenticationMiddleware } from './common/middleware/authentication.middleware';
+import {
+  WinstonModule,
+  utilities as nestWinstonModuleUtilities,
+} from 'nest-winston';
+import * as winston from 'winston';
+import * as path from 'path';
 
 @Module({
   imports: [
@@ -30,8 +35,41 @@ import { AuthenticationMiddleware } from './common/middleware/authentication.mid
         },
       },
     }),
+    WinstonModule.forRoot({
+      format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.json(),
+      ),
+      transports: [
+        new winston.transports.Console({
+          format: winston.format.combine(
+            winston.format.timestamp(),
+            winston.format.ms(),
+            nestWinstonModuleUtilities.format.nestLike('MyApp', {
+              colors: true,
+              prettyPrint: true,
+            }),
+          ),
+        }),
+        new winston.transports.File({
+          dirname: path.join(__dirname, './../log/info/'),
+          filename: 'info.log',
+          level: 'info',
+        }),
+        new winston.transports.File({
+          dirname: path.join(__dirname, './../log/debug/'),
+          filename: 'debug.log',
+          level: 'debug',
+        }),
+        new winston.transports.File({
+          dirname: path.join(__dirname, './../log/error/'),
+          filename: 'error.log',
+          level: 'error',
+        }),
+      ],
+    }),
   ],
-  providers: [RequestService, AppService],
+  providers: [AppService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

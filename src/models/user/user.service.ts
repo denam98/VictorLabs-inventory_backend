@@ -1,3 +1,4 @@
+import { RequestService } from 'src/config/app/request.service';
 import { ErrorService } from 'src/config/error/error.service';
 import { Injectable } from '@nestjs/common';
 import { user } from '@prisma/client';
@@ -9,11 +10,21 @@ import { SystemActivity } from 'src/common/util/system-activity.enum';
 
 @Injectable()
 export class UserService {
+  currUser: string;
+
   constructor(
     private postgreService: PostgresConfigService,
     private errorService: ErrorService,
     private commonService: AppConfigService,
-  ) {}
+    private readonly requestService: RequestService,
+  ) {
+    this.currUser = this.requestService.getUserId();
+    this.errorService.printLog(
+      'info',
+      UserService.name,
+      'current user ===> ' + this.currUser,
+    );
+  }
 
   async findUserByUsername(username: string): Promise<user> {
     try {
@@ -28,17 +39,20 @@ export class UserService {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E001,
             error,
+            UserService.name,
           );
         } else {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0016,
             error,
+            UserService.name,
           );
         }
       }
       throw this.errorService.newError(
         this.errorService.ErrConfig.E0010,
         error,
+        UserService.name,
       );
     }
   }
@@ -54,11 +68,13 @@ export class UserService {
         throw this.errorService.newError(
           this.errorService.ErrConfig.E0016,
           error,
+          UserService.name,
         );
       }
       throw this.errorService.newError(
         this.errorService.ErrConfig.E0010,
         error,
+        UserService.name,
       );
     }
   }
@@ -77,17 +93,20 @@ export class UserService {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0012,
             error,
+            UserService.name,
           );
         } else {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0016,
             error,
+            UserService.name,
           );
         }
       }
       throw this.errorService.newError(
         this.errorService.ErrConfig.E0010,
         error,
+        UserService.name,
       );
     }
   }
@@ -109,6 +128,7 @@ export class UserService {
       });
       await this.commonService.recordSystemActivity(
         SystemActivity.register_user,
+        this.requestService.getUserId(),
         user.user_id,
       );
       return this.commonService.exclude(user, ['password']);
@@ -118,30 +138,37 @@ export class UserService {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E006,
             error,
+            UserService.name,
           );
         } else {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0019,
             error,
+            UserService.name,
           );
         }
       }
       throw this.errorService.newError(
         this.errorService.ErrConfig.E0010,
         error,
+        UserService.name,
       );
     }
   }
 
   async deleteUser(userId: string): Promise<user> {
     try {
-      const user: user = await this.postgreService.user.delete({
+      const user: user = await this.postgreService.user.update({
         where: {
           user_id: userId,
+        },
+        data: {
+          is_active: false,
         },
       });
       await this.commonService.recordSystemActivity(
         SystemActivity.delete_user,
+        this.requestService.getUserId(),
         user.user_id,
       );
       return this.commonService.exclude(user, ['password']);
@@ -151,17 +178,20 @@ export class UserService {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0012,
             error,
+            UserService.name,
           );
         } else {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0018,
             error,
+            UserService.name,
           );
         }
       }
       throw this.errorService.newError(
         this.errorService.ErrConfig.E0010,
         error,
+        UserService.name,
       );
     }
   }
@@ -178,6 +208,7 @@ export class UserService {
       });
       await this.commonService.recordSystemActivity(
         SystemActivity.update_user,
+        this.currUser,
         user.user_id,
       );
       return this.commonService.exclude(user, ['password']);
@@ -187,17 +218,20 @@ export class UserService {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0012,
             error,
+            UserService.name,
           );
         } else {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0019,
             error,
+            UserService.name,
           );
         }
       }
       throw this.errorService.newError(
         this.errorService.ErrConfig.E0010,
         error,
+        UserService.name,
       );
     }
   }
