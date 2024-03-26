@@ -13,24 +13,149 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  userId Int @id @default(autoincrement())
+// Basic auth related start --->
+model user {
+  user_id String @id @default(uuid())
   password String
-  email String @unique
+  email String? @unique
   username String @unique
   fname String
   lname String
-  role Role @relation(fields: [roleId], references: [userId])
-  roleId Int 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  isActive Boolean @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  is_active Boolean @default(true)
+
+  role_id Int 
+
+  role role @relation(fields: [role_id], references: [role_id])
+  login sys_login[]
+  activity user_activity[]
 }
 
-model Role {
-  userId Int @id @default(autoincrement())
-  roleName String
-  users User[]
-  createdAt DateTime @default(now())
-  isActive Boolean @default(true)
+model role {
+  role_id Int @id @default(autoincrement())
+  role_name String
+  created_at DateTime @default(now())
+  is_active Boolean @default(true)
+
+  users user[]
 }
+
+model sys_login {
+  id Int @id @default(autoincrement())
+  timestamp DateTime
+
+  user_id String
+
+  user user @relation(fields: [user_id], references: [user_id])
+}
+// Basic auth related end
+
+// Activity monitoring related start --->
+model activity_type {
+  id Int @id @default(autoincrement())
+  activity_name String
+
+  activity user_activity[]
+}
+
+model user_activity {
+  id Int @id @default(autoincrement())
+  timestamp DateTime
+  record_id String?
+
+  activity_id Int
+  user_id String
+
+  user user @relation(fields: [user_id], references: [user_id])
+  activity activity_type @relation(fields: [activity_id], references: [id])
+}
+// Activity monitoring related end
+
+// Raw materials related start --->
+model rm_category {
+  id Int @id @default(autoincrement())
+  name String
+  is_active Boolean @default(true)
+
+  sub_category rm_sub_category[]
+}
+
+model rm_sub_category {
+  id Int @id @default(autoincrement())
+  name String
+  is_active Boolean @default(true)
+
+  rm_category_id Int
+
+  rm_category rm_category @relation(fields: [rm_category_id], references: [id])
+  raw_material raw_material[]
+}
+
+model uom {
+  id Int @id @default(autoincrement())
+  name String
+  is_active Boolean @default(true)
+
+  raw_material raw_material[]
+}
+
+model raw_material {
+  id String @id @default(uuid())
+  name String
+  item_code Int
+  is_active Boolean @default(true)
+  is_inventory Boolean @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  rm_sub_category_id Int
+  uom_id Int
+  supplier rm_supplier[]
+
+  rm_sub_category rm_sub_category @relation(fields: [rm_sub_category_id], references: [id])
+  uom uom @relation(fields: [uom_id], references: [id])
+}
+
+//--- Raw material and stock relationship not implemented (Can use purchase_order table instead)
+
+// Raw materials related end
+
+// Supplier related start --->
+model supplier {
+  id String @id @default(uuid())
+  name String
+  br_number Int
+  vat Decimal
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  is_active Boolean @default(true)
+
+  contact supplier_contact[]
+  raw_material rm_supplier[]
+}
+
+model supplier_contact {
+  id Int @id @default(autoincrement())
+  telephone String?
+  email String?
+  mobile String?
+  address String?
+  is_active Boolean @default(true)
+
+  supplier_id String
+
+  supplier supplier @relation(fields: [supplier_id], references: [id])
+}
+
+model rm_supplier {
+  id Int @id @default(autoincrement())
+
+  rm_id String
+  supplier_id String
+
+  raw_material raw_material @relation(fields: [rm_id], references: [id])
+  supplier supplier @relation(fields: [supplier_id], references: [id])
+}
+
+// Supplier related end

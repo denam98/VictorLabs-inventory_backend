@@ -52,13 +52,12 @@
     "E0010": {	
         "code": "E0010",
         "STATUS": "422",	
-        "DESCRIPTION": "Organization already exists"	
+        "DESCRIPTION": "Cannot process the request"	
     },
-    
     "E0012":{	
         "code": "E0012",
         "STATUS": "404",	
-        "DESCRIPTION": "User not found"	
+        "DESCRIPTION": "No record found"	
     },	
     "E0013":{	
         "code": "E0013",
@@ -81,13 +80,15 @@
         "code": "E0016",
         "STATUS": "500",
         "DESCRIPTION": "Internal Server Error",
-        "message": "MongoDB Error"
+        "message": "Postgresql Error"
     },
+
     "E0017": {
         "code": "E0017",
-        "STATUS": "400",
-        "DESCRIPTION": "Failed to download the file from s3"
+        "STATUS": "404",
+        "DESCRIPTION": "No records founds"
     },
+
     "E0018": {
         "code": "E0018",
         "STATUS": "500",
@@ -96,7 +97,7 @@
     "E0019": {	
         "code": "E0019",
         "STATUS": "422",	
-        "DESCRIPTION": "Error while changing user organization"	
+        "DESCRIPTION": "Error while inserting/changing database recode"	
     },
     "E0020": {	
         "code": "E0020",

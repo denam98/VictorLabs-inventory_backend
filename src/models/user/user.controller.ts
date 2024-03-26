@@ -8,13 +8,13 @@ import {
   Delete,
   Get,
   Param,
-  ParseIntPipe,
   Post,
+  Put,
   UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from 'src/authentication/guards/jwt-auth.guard';
-import { RegisterUserDTO } from 'src/common/dtos/register-user.dto';
+import { RegisterUserDTO, UpdateUserDTO } from 'src/common/dtos/dto';
 
 @Controller('api/v1/user')
 export class UserController {
@@ -28,7 +28,7 @@ export class UserController {
 
   // @UseGuards(JwtAuthGuard)
   @Get('/:id')
-  getUser(@Param('id', ParseIntPipe) userId: number) {
+  getUser(@Param('id') userId: string) {
     return this.userService.getUser(userId);
   }
 
@@ -40,7 +40,19 @@ export class UserController {
 
   // @UseGuards(JwtAuthGuard)
   @Delete('/:id')
-  deleteUser(@Param('id', ParseIntPipe) userId: number) {
+  deleteUser(@Param('id') userId: string) {
     return this.userService.deleteUser(userId);
+  }
+
+  @Put('/:id')
+  updateUser(
+    @Param('id') userId: string,
+    @Body() updateUserDto: UpdateUserDTO,
+  ) {
+    const params = {
+      where: { user_id: userId, is_active: true },
+      data: updateUserDto,
+    };
+    return this.userService.updateUser(params);
   }
 }
