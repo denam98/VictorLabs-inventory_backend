@@ -6,8 +6,12 @@ import { Injectable } from '@nestjs/common';
 import { user } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { PostgresConfigService } from '../database/postgres/config.service';
-import { SystemActivity } from 'src/common/util/system-activity.enum';
+import {
+  SystemActivity,
+  SystemActivityMsg,
+} from 'src/common/util/system-activity.enum';
 import { MailerService } from '@nestjs-modules/mailer';
+import { ErrorService } from '../error/error.service';
 
 @Injectable()
 export class AppConfigService {
@@ -16,6 +20,7 @@ export class AppConfigService {
   constructor(
     private postgresService: PostgresConfigService,
     private mailerService: MailerService,
+    private errorService: ErrorService,
   ) {}
 
   hashPassword(myPlaintextPassword: string): Promise<string> {
@@ -30,7 +35,7 @@ export class AppConfigService {
     return user;
   }
 
-  // Function to add system activity
+  // Function to record system activity
   async recordSystemActivity(
     type: SystemActivity,
     userId: string,
@@ -52,6 +57,11 @@ export class AppConfigService {
           record_id: recordId,
         },
       });
+    this.errorService.printLog(
+      'info',
+      'Surtex Inventory',
+      SystemActivityMsg[type],
+    );
   }
 
   // Function to send emails

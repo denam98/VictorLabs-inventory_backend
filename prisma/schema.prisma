@@ -73,11 +73,22 @@ model user_activity {
 // Activity monitoring related end
 
 // Raw materials related start --->
-model raw_material_category {
+model rm_category {
   id Int @id @default(autoincrement())
   name String
   is_active Boolean @default(true)
 
+  sub_category rm_sub_category[]
+}
+
+model rm_sub_category {
+  id Int @id @default(autoincrement())
+  name String
+  is_active Boolean @default(true)
+
+  rm_category_id Int
+
+  rm_category rm_category @relation(fields: [rm_category_id], references: [id])
   raw_material raw_material[]
 }
 
@@ -98,11 +109,11 @@ model raw_material {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  rm_category_id Int
+  rm_sub_category_id Int
   uom_id Int
   supplier rm_supplier[]
 
-  rm_category raw_material_category @relation(fields: [rm_category_id], references: [id])
+  rm_sub_category rm_sub_category @relation(fields: [rm_sub_category_id], references: [id])
   uom uom @relation(fields: [uom_id], references: [id])
 }
 

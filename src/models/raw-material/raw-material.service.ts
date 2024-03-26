@@ -1,15 +1,15 @@
 import { RequestService } from 'src/config/app/request.service';
 import { ErrorService } from 'src/config/error/error.service';
 import { Injectable } from '@nestjs/common';
-import { user } from '@prisma/client';
-import { RegisterUserDTO, UpdateUserDTO } from 'src/common/dtos/dto';
+import { raw_material } from '@prisma/client';
+import { AddRawMaterialDTO } from 'src/common/dtos/dto';
 import { PostgresConfigService } from 'src/config/database/postgres/config.service';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { AppConfigService } from 'src/config/app/app-config.service';
 import { SystemActivity } from 'src/common/util/system-activity.enum';
 
 @Injectable()
-export class UserService {
+export class RawMaterialService {
   currUser: string;
 
   constructor(
@@ -21,16 +21,16 @@ export class UserService {
     this.currUser = this.requestService.getUserId();
     this.errorService.printLog(
       'info',
-      UserService.name,
+      RawMaterialService.name,
       'current user ===> ' + this.currUser,
     );
   }
 
-  async findUserByUsername(username: string): Promise<user> {
+  async findRawMaterialByName(name: string): Promise<raw_material> {
     try {
-      return await this.postgreService.user.findFirst({
+      return await this.postgreService.raw_material.findFirst({
         where: {
-          username: username,
+          name: name,
           is_active: true,
         },
       });
@@ -40,205 +40,200 @@ export class UserService {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E001,
             error,
-            UserService.name,
+            RawMaterialService.name,
           );
         } else {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0016,
             error,
-            UserService.name,
+            RawMaterialService.name,
           );
         }
       }
       throw this.errorService.newError(
         this.errorService.ErrConfig.E0010,
         error,
-        UserService.name,
+        RawMaterialService.name,
       );
     }
   }
 
-  async getAllUsers(): Promise<user[]> {
+  async getAllRawMaterials(): Promise<raw_material[]> {
     try {
-      const users: user[] = await this.postgreService.user.findMany({
-        where: {
-          is_active: true,
-        },
-      });
-      return users.map((user: user) =>
-        this.commonService.exclude(user, ['password']),
-      );
+      const rawMaterial: raw_material[] =
+        await this.postgreService.raw_material.findMany({
+          where: {
+            is_active: true,
+          },
+        });
+      return rawMaterial;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         throw this.errorService.newError(
           this.errorService.ErrConfig.E0016,
           error,
-          UserService.name,
+          RawMaterialService.name,
         );
       }
       throw this.errorService.newError(
         this.errorService.ErrConfig.E0010,
         error,
-        UserService.name,
+        RawMaterialService.name,
       );
     }
   }
 
-  async getUser(userId: string): Promise<user> {
+  async getRawMaterialById(materialId: string): Promise<raw_material> {
     try {
-      const user: user = await this.postgreService.user.findFirstOrThrow({
-        where: {
-          user_id: userId,
-          is_active: true,
-        },
-      });
-      return this.commonService.exclude(user, ['password']);
+      const rawMaterial: raw_material =
+        await this.postgreService.raw_material.findFirstOrThrow({
+          where: {
+            id: materialId,
+            is_active: true,
+          },
+        });
+      return rawMaterial;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0012,
             error,
-            UserService.name,
+            RawMaterialService.name,
           );
         } else {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0016,
             error,
-            UserService.name,
+            RawMaterialService.name,
           );
         }
       }
       throw this.errorService.newError(
         this.errorService.ErrConfig.E0010,
         error,
-        UserService.name,
+        RawMaterialService.name,
       );
     }
   }
 
-  async registerUser(registerUserDto: RegisterUserDTO): Promise<user> {
+  async addRawMaterial(
+    addRawMaterailDto: AddRawMaterialDTO,
+  ): Promise<raw_material> {
     try {
-      const passwordHash: string = await this.commonService.hashPassword(
-        registerUserDto.password,
-      );
-      const user: user = await this.postgreService.user.create({
-        data: {
-          email: registerUserDto.email,
-          password: passwordHash,
-          username: registerUserDto.username,
-          role_id: registerUserDto.role_id,
-          fname: registerUserDto.fname,
-          lname: registerUserDto.lname,
-        },
-      });
+      const rawMaterial: raw_material =
+        await this.postgreService.raw_material.create({
+          data: addRawMaterailDto,
+        });
       await this.commonService.recordSystemActivity(
-        SystemActivity.register_user,
-        this.requestService.getUserId(),
-        user.user_id,
+        SystemActivity.add_raw_material,
+        this.currUser,
+        rawMaterial.id,
       );
-      return this.commonService.exclude(user, ['password']);
+      return rawMaterial;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E006,
             error,
-            UserService.name,
+            RawMaterialService.name,
           );
         } else {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0019,
             error,
-            UserService.name,
+            RawMaterialService.name,
           );
         }
       }
       throw this.errorService.newError(
         this.errorService.ErrConfig.E0010,
         error,
-        UserService.name,
+        RawMaterialService.name,
       );
     }
   }
 
-  async deleteUser(userId: string): Promise<user> {
+  async deleteRawMaterial(materialId: string): Promise<raw_material> {
     try {
-      const user: user = await this.postgreService.user.update({
-        where: {
-          user_id: userId,
-          is_active: true,
-        },
-        data: {
-          is_active: false,
-        },
-      });
+      const rawMaterial: raw_material =
+        await this.postgreService.raw_material.update({
+          where: {
+            id: materialId,
+            is_active: true,
+          },
+          data: {
+            is_active: false,
+          },
+        });
       await this.commonService.recordSystemActivity(
-        SystemActivity.delete_user,
-        this.requestService.getUserId(),
-        user.user_id,
+        SystemActivity.delete_raw_material,
+        this.currUser,
+        rawMaterial.id,
       );
-      return this.commonService.exclude(user, ['password']);
+      return rawMaterial;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0012,
             error,
-            UserService.name,
+            RawMaterialService.name,
           );
         } else {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0018,
             error,
-            UserService.name,
+            RawMaterialService.name,
           );
         }
       }
       throw this.errorService.newError(
         this.errorService.ErrConfig.E0010,
         error,
-        UserService.name,
+        RawMaterialService.name,
       );
     }
   }
 
-  async updateUser(params: {
-    where: { user_id: string };
-    data: UpdateUserDTO;
-  }) {
+  async updateRawMaterial(params: {
+    where: { id: string; is_active: boolean };
+    data: AddRawMaterialDTO;
+  }): Promise<raw_material> {
     try {
       const { where, data } = params;
-      const user: user = await this.postgreService.user.update({
-        where,
-        data,
-      });
+      const rawMaterial: raw_material =
+        await this.postgreService.raw_material.update({
+          where,
+          data,
+        });
       await this.commonService.recordSystemActivity(
-        SystemActivity.update_user,
+        SystemActivity.update_raw_material,
         this.currUser,
-        user.user_id,
+        rawMaterial.id,
       );
-      return this.commonService.exclude(user, ['password']);
+      return rawMaterial;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0012,
             error,
-            UserService.name,
+            RawMaterialService.name,
           );
         } else {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0019,
             error,
-            UserService.name,
+            RawMaterialService.name,
           );
         }
       }
       throw this.errorService.newError(
         this.errorService.ErrConfig.E0010,
         error,
-        UserService.name,
+        RawMaterialService.name,
       );
     }
   }

@@ -7,7 +7,7 @@ async function bootstrap() {
   app.useGlobalPipes(
     new ValidationPipe({
       // Implemented this line to restrict unnecassory parameters in the request body
-      // apart from the ones defined in the respective dto.
+      // apart from the ones defined in the respective dto
       whitelist: true,
     }),
   );

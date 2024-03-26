@@ -5,7 +5,6 @@ import { UserService } from 'src/models/user/user.service';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './strategies/jwt-strategy';
 import { RefreshTokenStrategy } from './strategies/refresh-token-strategy';
-import { RequestService } from 'src/common/services/request.service';
 import { LocalAuthStrategy } from './strategies/local-strategy';
 
 @Module({
@@ -21,7 +20,6 @@ import { LocalAuthStrategy } from './strategies/local-strategy';
     UserService,
     JwtStrategy,
     RefreshTokenStrategy,
-    RequestService,
     LocalAuthStrategy,
   ],
 })

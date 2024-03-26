@@ -4,12 +4,11 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { user } from '@prisma/client';
 import { PostgresConfigService } from 'src/config/database/postgres/config.service';
-import { RegisterUserDTO } from 'src/common/dtos/dto';
+import { RegisterUserDTO, LoginDTO } from 'src/common/dtos/dto';
 import { AppConfigService } from 'src/config/app/app-config.service';
 import { ErrorService } from 'src/config/error/error.service';
 import { SystemActivity } from 'src/common/util/system-activity.enum';
-import { RequestService } from 'src/common/services/request.service';
-import { LoginDTO } from 'src/common/dtos/login.dto';
+import { RequestService } from 'src/config/app/request.service';
 
 @Injectable()
 export class AuthService {
@@ -32,10 +31,12 @@ export class AuthService {
       if (user && (await bcrypt.compare(loginDto.password, user.password))) {
         return this.login(this.commonService.exclude(user, ['password']));
       }
+      throw new Error();
     } catch (error) {
       throw this.errorService.newError(
-        this.errorService.ErrConfig.E0010,
+        this.errorService.ErrConfig.E001,
         error,
+        AuthService.name,
       );
     }
   }

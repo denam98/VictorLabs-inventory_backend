@@ -8,7 +8,6 @@ import {
   Delete,
   Get,
   Param,
-  ParseIntPipe,
   Post,
   Put,
   UseGuards,
@@ -29,7 +28,7 @@ export class UserController {
 
   // @UseGuards(JwtAuthGuard)
   @Get('/:id')
-  getUser(@Param('id', ParseIntPipe) userId: string) {
+  getUser(@Param('id') userId: string) {
     return this.userService.getUser(userId);
   }
 
@@ -48,9 +47,12 @@ export class UserController {
   @Put('/:id')
   updateUser(
     @Param('id') userId: string,
-    @Body() registerUserDto: UpdateUserDTO,
+    @Body() updateUserDto: UpdateUserDTO,
   ) {
-    const params = { where: { user_id: userId }, data: registerUserDto };
+    const params = {
+      where: { user_id: userId, is_active: true },
+      data: updateUserDto,
+    };
     return this.userService.updateUser(params);
   }
 }
