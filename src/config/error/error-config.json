@@ -57,7 +57,7 @@
     "E0012":{	
         "code": "E0012",
         "STATUS": "404",	
-        "DESCRIPTION": "User not found"	
+        "DESCRIPTION": "No record found"	
     },	
     "E0013":{	
         "code": "E0013",

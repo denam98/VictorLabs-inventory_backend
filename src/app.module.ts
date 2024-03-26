@@ -18,11 +18,13 @@ import {
 } from 'nest-winston';
 import * as winston from 'winston';
 import * as path from 'path';
+import { RawMaterialModule } from './models/raw-material/raw-material.module';
 
 @Module({
   imports: [
     AppConfigModule,
     UserModule,
+    RawMaterialModule,
     AuthModule,
     PostgresConfigModule,
     ErrorModule,

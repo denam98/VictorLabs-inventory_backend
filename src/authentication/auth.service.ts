@@ -31,10 +31,12 @@ export class AuthService {
       if (user && (await bcrypt.compare(loginDto.password, user.password))) {
         return this.login(this.commonService.exclude(user, ['password']));
       }
+      throw new Error();
     } catch (error) {
       throw this.errorService.newError(
-        this.errorService.ErrConfig.E0010,
+        this.errorService.ErrConfig.E001,
         error,
+        AuthService.name,
       );
     }
   }
