@@ -33,6 +33,9 @@ export class UserService {
           username: username,
           is_active: true,
         },
+        include: {
+          role: true,
+        },
       });
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
@@ -64,6 +67,9 @@ export class UserService {
         where: {
           is_active: true,
         },
+        include: {
+          role: true,
+        },
       });
       return users.map((user: user) =>
         this.commonService.exclude(user, ['password']),
@@ -90,6 +96,9 @@ export class UserService {
         where: {
           user_id: userId,
           is_active: true,
+        },
+        include: {
+          role: true,
         },
       });
       return this.commonService.exclude(user, ['password']);

@@ -19,12 +19,14 @@ import {
 import * as winston from 'winston';
 import * as path from 'path';
 import { RawMaterialModule } from './models/raw-material/raw-material.module';
+import { SupplierModule } from './models/supplier/supplier.module';
 
 @Module({
   imports: [
     AppConfigModule,
     UserModule,
     RawMaterialModule,
+    SupplierModule,
     AuthModule,
     PostgresConfigModule,
     ErrorModule,

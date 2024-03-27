@@ -8,6 +8,7 @@ export enum SystemActivity {
   'delete_user' = 6,
   'update_user' = 7,
   'delete_raw_material' = 8,
+  'delete_supplier' = 9,
 }
 
 export enum SystemActivityMsg {
@@ -20,4 +21,5 @@ export enum SystemActivityMsg {
   'User deleted',
   'User updated',
   'Raw material deleted',
+  'Supplier deleted',
 }
