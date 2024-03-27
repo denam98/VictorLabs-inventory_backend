@@ -1,15 +1,15 @@
 import { RequestService } from 'src/config/app/request.service';
 import { ErrorService } from 'src/config/error/error.service';
 import { Injectable } from '@nestjs/common';
-import { raw_material } from '@prisma/client';
-import { AddRawMaterialDTO } from 'src/common/dtos/dto';
+import { supplier, supplier_contact } from '@prisma/client';
+import { AddSupplierContactDTO, AddSupplierDTO } from 'src/common/dtos/dto';
 import { PostgresConfigService } from 'src/config/database/postgres/config.service';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { AppConfigService } from 'src/config/app/app-config.service';
 import { SystemActivity } from 'src/common/util/system-activity.enum';
 
 @Injectable()
-export class RawMaterialService {
+export class SupplierService {
   currUser: string;
 
   constructor(
@@ -21,21 +21,17 @@ export class RawMaterialService {
     this.currUser = this.requestService.getUserId();
     this.errorService.printLog(
       'info',
-      RawMaterialService.name,
+      SupplierService.name,
       'current user ===> ' + this.currUser,
     );
   }
 
-  async findRawMaterialByName(name: string): Promise<raw_material> {
+  async findSupplierByName(name: string): Promise<supplier> {
     try {
-      return await this.postgreService.raw_material.findFirst({
+      return await this.postgreService.supplier.findFirst({
         where: {
           name: name,
           is_active: true,
-        },
-        include: {
-          rm_sub_category: true,
-          uom: true,
         },
       });
     } catch (error) {
@@ -44,208 +40,275 @@ export class RawMaterialService {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E001,
             error,
-            RawMaterialService.name,
+            SupplierService.name,
           );
         } else {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0016,
             error,
-            RawMaterialService.name,
+            SupplierService.name,
           );
         }
       }
       throw this.errorService.newError(
         this.errorService.ErrConfig.E0010,
         error,
-        RawMaterialService.name,
+        SupplierService.name,
       );
     }
   }
 
-  async getAllRawMaterials(): Promise<raw_material[]> {
+  async getAllSuppliers(): Promise<supplier[]> {
     try {
-      const rawMaterial: raw_material[] =
-        await this.postgreService.raw_material.findMany({
-          where: {
-            is_active: true,
+      const supplier: supplier[] = await this.postgreService.supplier.findMany({
+        where: {
+          is_active: true,
+        },
+        include: {
+          contact: {
+            where: { is_active: true },
           },
-          include: {
-            rm_sub_category: true,
-            uom: true,
+          raw_material: {
+            where: { is_active: true },
           },
-        });
-      return rawMaterial;
+        },
+      });
+      return supplier;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         throw this.errorService.newError(
           this.errorService.ErrConfig.E0016,
           error,
-          RawMaterialService.name,
+          SupplierService.name,
         );
       }
       throw this.errorService.newError(
         this.errorService.ErrConfig.E0010,
         error,
-        RawMaterialService.name,
+        SupplierService.name,
       );
     }
   }
 
-  async getRawMaterialById(materialId: string): Promise<raw_material> {
+  async getSupplierById(supplierId: string): Promise<supplier> {
     try {
-      const rawMaterial: raw_material =
-        await this.postgreService.raw_material.findFirstOrThrow({
+      const supplier: supplier =
+        await this.postgreService.supplier.findFirstOrThrow({
           where: {
-            id: materialId,
+            id: supplierId,
             is_active: true,
           },
           include: {
-            rm_sub_category: true,
-            uom: true,
+            contact: {
+              where: { is_active: true },
+            },
+            raw_material: {
+              where: { is_active: true },
+            },
           },
         });
-      return rawMaterial;
+      return supplier;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0012,
             error,
-            RawMaterialService.name,
+            SupplierService.name,
           );
         } else {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0016,
             error,
-            RawMaterialService.name,
+            SupplierService.name,
           );
         }
       }
       throw this.errorService.newError(
         this.errorService.ErrConfig.E0010,
         error,
-        RawMaterialService.name,
+        SupplierService.name,
       );
     }
   }
 
-  async addRawMaterial(
-    addRawMaterailDto: AddRawMaterialDTO,
-  ): Promise<raw_material> {
+  async addSupplier(data: {
+    addSupplierDto: AddSupplierDTO;
+    supplierContacts: AddSupplierContactDTO[];
+  }): Promise<supplier> {
     try {
-      const rawMaterial: raw_material =
-        await this.postgreService.raw_material.create({
-          data: addRawMaterailDto,
-        });
+      const supplier: supplier = await this.postgreService.supplier.create({
+        data: data.addSupplierDto,
+      });
+
+      await this.postgreService.supplier_contact.createMany({
+        data: data.supplierContacts.map((contact: AddSupplierContactDTO) => {
+          contact.supplier_id = supplier.id;
+          return contact;
+        }),
+      });
+
       await this.commonService.recordSystemActivity(
-        SystemActivity.add_raw_material,
+        SystemActivity.add_supplier,
         this.currUser,
-        rawMaterial.id,
+        supplier.id,
       );
-      return rawMaterial;
+      return supplier;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E006,
             error,
-            RawMaterialService.name,
+            SupplierService.name,
           );
         } else {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0019,
             error,
-            RawMaterialService.name,
+            SupplierService.name,
           );
         }
       }
       throw this.errorService.newError(
         this.errorService.ErrConfig.E0010,
         error,
-        RawMaterialService.name,
+        SupplierService.name,
       );
     }
   }
 
-  async deleteRawMaterial(materialId: string): Promise<raw_material> {
+  async deleteSupplier(supplierId: string): Promise<supplier> {
     try {
-      const rawMaterial: raw_material =
-        await this.postgreService.raw_material.update({
-          where: {
-            id: materialId,
-            is_active: true,
-          },
-          data: {
-            is_active: false,
-          },
-        });
+      const supplier: supplier = await this.postgreService.supplier.update({
+        where: {
+          id: supplierId,
+          is_active: true,
+        },
+        data: {
+          is_active: false,
+        },
+      });
+
+      await this.postgreService.supplier_contact.updateMany({
+        where: {
+          supplier_id: supplier.id,
+          is_active: true,
+        },
+        data: {
+          is_active: false,
+        },
+      });
+
       await this.commonService.recordSystemActivity(
-        SystemActivity.delete_raw_material,
+        SystemActivity.delete_supplier,
         this.currUser,
-        rawMaterial.id,
+        supplier.id,
       );
-      return rawMaterial;
+      return supplier;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0012,
             error,
-            RawMaterialService.name,
+            SupplierService.name,
           );
         } else {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0018,
             error,
-            RawMaterialService.name,
+            SupplierService.name,
           );
         }
       }
       throw this.errorService.newError(
         this.errorService.ErrConfig.E0010,
         error,
-        RawMaterialService.name,
+        SupplierService.name,
       );
     }
   }
 
-  async updateRawMaterial(params: {
+  async updateSupplier(params: {
     where: { id: string; is_active: boolean };
-    data: AddRawMaterialDTO;
-  }): Promise<raw_material> {
+    data: AddSupplierDTO;
+  }): Promise<supplier> {
     try {
       const { where, data } = params;
-      const rawMaterial: raw_material =
-        await this.postgreService.raw_material.update({
-          where,
-          data,
-        });
+      const supplier: supplier = await this.postgreService.supplier.update({
+        where,
+        data,
+      });
       await this.commonService.recordSystemActivity(
-        SystemActivity.update_raw_material,
+        SystemActivity.update_supplier,
         this.currUser,
-        rawMaterial.id,
+        supplier.id,
       );
-      return rawMaterial;
+      return supplier;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0012,
             error,
-            RawMaterialService.name,
+            SupplierService.name,
           );
         } else {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0019,
             error,
-            RawMaterialService.name,
+            SupplierService.name,
           );
         }
       }
       throw this.errorService.newError(
         this.errorService.ErrConfig.E0010,
         error,
-        RawMaterialService.name,
+        SupplierService.name,
+      );
+    }
+  }
+
+  async updateContactDetails(
+    contacts: AddSupplierContactDTO[],
+    supplierId: string,
+  ): Promise<Promise<supplier_contact>[]> {
+    try {
+      return await contacts.map(async (contact: AddSupplierContactDTO) => {
+        const id = contact.id ? contact.id : null;
+        contact.id ? delete contact.id : null;
+        console.log(contact);
+        return await this.postgreService.supplier_contact.upsert({
+          where: {
+            id: id,
+            supplier_id: supplierId,
+            is_active: true,
+          },
+          update: contact,
+          create: contact,
+        });
+      });
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        if (error.code === 'P2025') {
+          throw this.errorService.newError(
+            this.errorService.ErrConfig.E0012,
+            error,
+            SupplierService.name,
+          );
+        } else {
+          throw this.errorService.newError(
+            this.errorService.ErrConfig.E0019,
+            error,
+            SupplierService.name,
+          );
+        }
+      }
+      throw this.errorService.newError(
+        this.errorService.ErrConfig.E0010,
+        error,
+        SupplierService.name,
       );
     }
   }

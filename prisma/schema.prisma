@@ -150,6 +150,7 @@ model supplier_contact {
 
 model rm_supplier {
   id Int @id @default(autoincrement())
+  is_active Boolean @default(true)
 
   rm_id String
   supplier_id String
