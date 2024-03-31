@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { RegisterUserDTO, UpdateUserDTO } from 'src/common/dtos/dto';
@@ -22,6 +23,11 @@ export class UserController {
   @Get('/:id')
   getUser(@Param('id') userId: string) {
     return this.userService.getUser(userId);
+  }
+
+  @Get('/')
+  getUserByUsername(@Query('uname') uname: string) {
+    return this.userService.getAllByUsername(uname);
   }
 
   @Post('/register')

@@ -9,6 +9,12 @@ export enum SystemActivity {
   'update_user' = 7,
   'delete_raw_material' = 8,
   'delete_supplier' = 9,
+  'create_prn' = 10,
+  'update_prn' = 11,
+  'delete_prn' = 12,
+  'create_po' = 13,
+  'update_po' = 14,
+  'delete_po' = 15,
 }
 
 export enum SystemActivityMsg {
@@ -22,4 +28,10 @@ export enum SystemActivityMsg {
   'User updated',
   'Raw material deleted',
   'Supplier deleted',
+  'PRN created',
+  'PRN updated',
+  'PRN deleted',
+  'PO created',
+  'PO updated',
+  'PO deleted',
 }
