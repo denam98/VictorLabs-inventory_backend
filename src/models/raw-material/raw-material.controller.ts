@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { RawMaterialService } from './raw-material.service';
@@ -24,6 +25,11 @@ export class RawMaterialController {
   @Get('/:id')
   getRawMaterialById(@Param('id') materialId: string) {
     return this.rawMaterialService.getRawMaterialById(materialId);
+  }
+
+  @Get('/')
+  getRawMaterialByName(@Query('name') name: string) {
+    return this.rawMaterialService.findRawMaterialByName(name);
   }
 
   @UseGuards(JwtAuthGuard)

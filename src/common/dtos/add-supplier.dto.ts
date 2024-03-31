@@ -1,23 +1,29 @@
-import {
-  IsBoolean,
-  IsNotEmpty,
-  IsNumber,
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class AddSupplierDTO {
   @IsString()
   @IsNotEmpty()
   name;
 
-  @IsNumber()
-  @IsNotEmpty()
+  @IsOptional()
+  @IsString()
   br_number;
 
-  @IsNumber()
-  @IsNotEmpty()
-  vat;
+  @IsOptional()
+  @IsString()
+  vat_reg_no;
+
+  @IsOptional()
+  @IsString()
+  address;
+
+  @IsOptional()
+  @IsString()
+  telephone;
+
+  @IsOptional()
+  @IsString()
+  fax;
 
   @IsOptional()
   @IsBoolean()

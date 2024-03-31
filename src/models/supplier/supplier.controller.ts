@@ -25,6 +25,11 @@ export class SupplierController {
     return this.supplierService.getSupplierById(supplierId);
   }
 
+  @Get('/')
+  getSupplierByName(@Param('name') name: string) {
+    return this.supplierService.findSupplierByName(name);
+  }
+
   @Post('/add')
   addSupplier(
     @Body()

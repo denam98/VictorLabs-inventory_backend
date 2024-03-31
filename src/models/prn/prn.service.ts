@@ -1,15 +1,15 @@
 import { RequestService } from 'src/config/app/request.service';
 import { ErrorService } from 'src/config/error/error.service';
 import { Injectable } from '@nestjs/common';
-import { supplier, supplier_contact } from '@prisma/client';
-import { AddSupplierContactDTO, AddSupplierDTO } from 'src/common/dtos/dto';
+import { prn, prn_item } from '@prisma/client';
+import { CreatePrnDTO, PrnItemDto } from 'src/common/dtos/dto';
 import { PostgresConfigService } from 'src/config/database/postgres/config.service';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { AppConfigService } from 'src/config/app/app-config.service';
 import { SystemActivity } from 'src/common/util/system-activity.enum';
 
 @Injectable()
-export class SupplierService {
+export class PrnService {
   currUser: string;
 
   constructor(
@@ -21,294 +21,276 @@ export class SupplierService {
     this.currUser = this.requestService.getUserId();
     this.errorService.printLog(
       'info',
-      SupplierService.name,
+      PrnService.name,
       'current user ===> ' + this.currUser,
     );
   }
 
-  async findSupplierByName(name: string): Promise<supplier[]> {
+  async findPrnByPrnNo(prnNo: string): Promise<prn> {
     try {
-      return await this.postgreService.supplier.findMany({
+      return await this.postgreService.prn.findFirst({
         where: {
-          name: name,
-          is_active: true,
-        },
-      });
-    } catch (error) {
-      if (error instanceof PrismaClientKnownRequestError) {
-        if (error.code === 'P2001') {
-          throw this.errorService.newError(
-            this.errorService.ErrConfig.E001,
-            error,
-            SupplierService.name,
-          );
-        } else {
-          throw this.errorService.newError(
-            this.errorService.ErrConfig.E0016,
-            error,
-            SupplierService.name,
-          );
-        }
-      }
-      throw this.errorService.newError(
-        this.errorService.ErrConfig.E0010,
-        error,
-        SupplierService.name,
-      );
-    }
-  }
-
-  async getAllSuppliers(): Promise<supplier[]> {
-    try {
-      const supplier: supplier[] = await this.postgreService.supplier.findMany({
-        where: {
+          prn_no: prnNo,
           is_active: true,
         },
         include: {
-          contact: {
-            where: { is_active: true },
-          },
-          raw_material: {
-            where: { is_active: true },
-          },
+          prn_item: true,
+          priority: true,
         },
       });
-      return supplier;
-    } catch (error) {
-      if (error instanceof PrismaClientKnownRequestError) {
-        throw this.errorService.newError(
-          this.errorService.ErrConfig.E0016,
-          error,
-          SupplierService.name,
-        );
-      }
-      throw this.errorService.newError(
-        this.errorService.ErrConfig.E0010,
-        error,
-        SupplierService.name,
-      );
-    }
-  }
-
-  async getSupplierById(supplierId: string): Promise<supplier> {
-    try {
-      const supplier: supplier =
-        await this.postgreService.supplier.findFirstOrThrow({
-          where: {
-            id: supplierId,
-            is_active: true,
-          },
-          include: {
-            contact: {
-              where: { is_active: true },
-            },
-            raw_material: {
-              where: { is_active: true },
-            },
-          },
-        });
-      return supplier;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0012,
             error,
-            SupplierService.name,
+            PrnService.name,
           );
         } else {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0016,
             error,
-            SupplierService.name,
+            PrnService.name,
           );
         }
       }
       throw this.errorService.newError(
         this.errorService.ErrConfig.E0010,
         error,
-        SupplierService.name,
+        PrnService.name,
       );
     }
   }
 
-  async addSupplier(data: {
-    addSupplierDto: AddSupplierDTO;
-    supplierContacts: AddSupplierContactDTO[];
-  }): Promise<supplier> {
+  async getAllPrn(): Promise<prn[]> {
     try {
-      const supplier: supplier = await this.postgreService.supplier.create({
-        data: data.addSupplierDto,
+      const prns: prn[] = await this.postgreService.prn.findMany({
+        where: {
+          is_active: true,
+        },
+        include: {
+          prn_item: true,
+          priority: true,
+        },
+      });
+      return prns;
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        throw this.errorService.newError(
+          this.errorService.ErrConfig.E0016,
+          error,
+          PrnService.name,
+        );
+      }
+      throw this.errorService.newError(
+        this.errorService.ErrConfig.E0010,
+        error,
+        PrnService.name,
+      );
+    }
+  }
+
+  async getPrn(prnId: string): Promise<prn> {
+    try {
+      const prn: prn = await this.postgreService.prn.findFirstOrThrow({
+        where: {
+          id: prnId,
+          is_active: true,
+        },
+        include: {
+          prn_item: true,
+          priority: true,
+        },
+      });
+      return prn;
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        if (error.code === 'P2025') {
+          throw this.errorService.newError(
+            this.errorService.ErrConfig.E0012,
+            error,
+            PrnService.name,
+          );
+        } else {
+          throw this.errorService.newError(
+            this.errorService.ErrConfig.E0016,
+            error,
+            PrnService.name,
+          );
+        }
+      }
+      throw this.errorService.newError(
+        this.errorService.ErrConfig.E0010,
+        error,
+        PrnService.name,
+      );
+    }
+  }
+
+  async createPrn(createPrnDto: CreatePrnDTO): Promise<prn> {
+    try {
+      const prnItems: PrnItemDto[] = createPrnDto.items;
+      delete createPrnDto.items;
+      const prn: prn = await this.postgreService.prn.create({
+        data: createPrnDto,
       });
 
-      await this.postgreService.supplier_contact.createMany({
-        data: data.supplierContacts.map((contact: AddSupplierContactDTO) => {
-          contact.supplier_id = supplier.id;
-          return contact;
-        }),
-      });
+      const prnItemCreationPromises: Promise<prn_item>[] = prnItems.map(
+        (item: PrnItemDto) => {
+          item['prn_id'] = prn.id;
+          return this.postgreService.prn_item.create({
+            data: item,
+          });
+        },
+      );
+      await Promise.all(prnItemCreationPromises)
+        .then((rslt) => {
+          prn['prn_item'] = rslt;
+        })
+        .catch((error) => {
+          throw this.errorService.newError(
+            this.errorService.ErrConfig.E0019,
+            error,
+            PrnService.name,
+          );
+        });
 
       await this.commonService.recordSystemActivity(
-        SystemActivity.add_supplier,
+        SystemActivity.create_prn,
         this.currUser,
-        supplier.id,
+        prn.id,
       );
-      return supplier;
+      return prn;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E006,
             error,
-            SupplierService.name,
+            PrnService.name,
           );
         } else {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0019,
             error,
-            SupplierService.name,
+            PrnService.name,
           );
         }
       }
       throw this.errorService.newError(
         this.errorService.ErrConfig.E0010,
         error,
-        SupplierService.name,
+        PrnService.name,
       );
     }
   }
 
-  async deleteSupplier(supplierId: string): Promise<supplier> {
+  async deletePrn(prnId: string): Promise<prn> {
     try {
-      const supplier: supplier = await this.postgreService.supplier.update({
+      const prn: prn = await this.postgreService.prn.update({
         where: {
-          id: supplierId,
+          id: prnId,
           is_active: true,
         },
         data: {
           is_active: false,
         },
       });
-
-      await this.postgreService.supplier_contact.updateMany({
-        where: {
-          supplier_id: supplier.id,
-          is_active: true,
-        },
-        data: {
-          is_active: false,
-        },
-      });
-
       await this.commonService.recordSystemActivity(
-        SystemActivity.delete_supplier,
+        SystemActivity.delete_prn,
         this.currUser,
-        supplier.id,
+        prn.id,
       );
-      return supplier;
+      return prn;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0012,
             error,
-            SupplierService.name,
+            PrnService.name,
           );
         } else {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0018,
             error,
-            SupplierService.name,
+            PrnService.name,
           );
         }
       }
       throw this.errorService.newError(
         this.errorService.ErrConfig.E0010,
         error,
-        SupplierService.name,
+        PrnService.name,
       );
     }
   }
 
-  async updateSupplier(params: {
+  async updatePrn(params: {
     where: { id: string; is_active: boolean };
-    data: AddSupplierDTO;
-  }): Promise<supplier> {
+    data: CreatePrnDTO;
+  }): Promise<prn> {
     try {
       const { where, data } = params;
-      const supplier: supplier = await this.postgreService.supplier.update({
+      const prnItems: PrnItemDto[] = data.items;
+      delete data.items;
+      const prn: prn = await this.postgreService.prn.update({
         where,
         data,
       });
-      await this.commonService.recordSystemActivity(
-        SystemActivity.update_supplier,
-        this.currUser,
-        supplier.id,
-      );
-      return supplier;
-    } catch (error) {
-      if (error instanceof PrismaClientKnownRequestError) {
-        if (error.code === 'P2025') {
-          throw this.errorService.newError(
-            this.errorService.ErrConfig.E0012,
-            error,
-            SupplierService.name,
-          );
-        } else {
-          throw this.errorService.newError(
-            this.errorService.ErrConfig.E0019,
-            error,
-            SupplierService.name,
-          );
-        }
-      }
-      throw this.errorService.newError(
-        this.errorService.ErrConfig.E0010,
-        error,
-        SupplierService.name,
-      );
-    }
-  }
 
-  async updateContactDetails(
-    contacts: AddSupplierContactDTO[],
-    supplierId: string,
-  ): Promise<Promise<supplier_contact>[]> {
-    try {
-      return await contacts.map(async (contact: AddSupplierContactDTO) => {
-        const id = contact.id ? contact.id : null;
-        contact.id ? delete contact.id : null;
-        console.log(contact);
-        return await this.postgreService.supplier_contact.upsert({
-          where: {
-            id: id,
-            supplier_id: supplierId,
-            is_active: true,
-          },
-          update: contact,
-          create: contact,
+      const prnItemCreationPromises: Promise<prn_item>[] = prnItems.map(
+        (item: PrnItemDto) => {
+          item['prn_id'] = prn.id;
+          const itemId = item.id && item.id != '' ? item.id : null;
+          return this.postgreService.prn_item.upsert({
+            where: {
+              id: itemId,
+              is_active: true,
+            },
+            update: item,
+            create: item,
+          });
+        },
+      );
+      await Promise.all(prnItemCreationPromises)
+        .then((rslt) => {
+          prn['prn_item'] = rslt;
+        })
+        .catch((error) => {
+          throw this.errorService.newError(
+            this.errorService.ErrConfig.E0019,
+            error,
+            PrnService.name,
+          );
         });
-      });
+
+      await this.commonService.recordSystemActivity(
+        SystemActivity.update_prn,
+        this.currUser,
+        prn.id,
+      );
+      return prn;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0012,
             error,
-            SupplierService.name,
+            PrnService.name,
           );
         } else {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0019,
             error,
-            SupplierService.name,
+            PrnService.name,
           );
         }
       }
       throw this.errorService.newError(
         this.errorService.ErrConfig.E0010,
         error,
-        SupplierService.name,
+        PrnService.name,
       );
     }
   }

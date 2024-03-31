@@ -26,9 +26,9 @@ export class RawMaterialService {
     );
   }
 
-  async findRawMaterialByName(name: string): Promise<raw_material> {
+  async findRawMaterialByName(name: string): Promise<raw_material[]> {
     try {
-      return await this.postgreService.raw_material.findFirst({
+      return await this.postgreService.raw_material.findMany({
         where: {
           name: name,
           is_active: true,
@@ -39,7 +39,7 @@ export class RawMaterialService {
               is_active: true,
             },
           },
-          rm_sub_category: true,
+          rm_category: true,
           uom: true,
         },
       });
@@ -80,7 +80,7 @@ export class RawMaterialService {
                 is_active: true,
               },
             },
-            rm_sub_category: true,
+            rm_category: true,
             uom: true,
           },
         });
@@ -115,7 +115,7 @@ export class RawMaterialService {
                 is_active: true,
               },
             },
-            rm_sub_category: true,
+            rm_category: true,
             uom: true,
           },
         });

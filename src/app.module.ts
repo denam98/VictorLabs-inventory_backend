@@ -21,6 +21,7 @@ import * as path from 'path';
 import { RawMaterialModule } from './models/raw-material/raw-material.module';
 import { SupplierModule } from './models/supplier/supplier.module';
 import { RawMaterialSupplierModule } from './models/rawmaterial-supplier/rm-supplier.module';
+import { PrnModule } from './models/prn/prn.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { RawMaterialSupplierModule } from './models/rawmaterial-supplier/rm-supp
     SupplierModule,
     RawMaterialSupplierModule,
     AuthModule,
+    PrnModule,
     PostgresConfigModule,
     ErrorModule,
     MailerModule.forRoot({
