@@ -181,7 +181,6 @@ model prn {
   priority priority @relation(fields: [priority_id], references: [id])
 }
 
-
 model prn_item {
   id String @id @default(uuid())
   qty Decimal

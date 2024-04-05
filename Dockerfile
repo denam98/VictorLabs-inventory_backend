@@ -8,7 +8,7 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 # Install app dependencies
-RUN npm ci
+RUN npm i
 
 # Bundle app source
 COPY . .
@@ -24,4 +24,4 @@ RUN npm run build
 EXPOSE 3000
 
 # Start the server using the production build
-CMD ["npm", "run", "start:dev"]
+CMD ["npm", "start"]
