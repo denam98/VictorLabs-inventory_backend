@@ -19,11 +19,6 @@ export class RawMaterialSupplierService {
     private readonly requestService: RequestService,
   ) {
     this.currUser = this.requestService.getUserId();
-    this.errorService.printLog(
-      'info',
-      RawMaterialSupplierService.name,
-      'current user ===> ' + this.currUser,
-    );
   }
 
   async getAllByRawMaterialId(materialId: string): Promise<rm_supplier[]> {

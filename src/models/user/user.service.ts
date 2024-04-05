@@ -19,11 +19,6 @@ export class UserService {
     private readonly requestService: RequestService,
   ) {
     this.currUser = this.requestService.getUserId();
-    this.errorService.printLog(
-      'info',
-      UserService.name,
-      'current user ===> ' + this.currUser,
-    );
   }
 
   async findUserByUsername(username: string): Promise<user> {

@@ -20,11 +20,6 @@ export class PoService {
     private readonly requestService: RequestService,
   ) {
     this.currUser = this.requestService.getUserId();
-    this.errorService.printLog(
-      'info',
-      PoService.name,
-      'current user ===> ' + this.currUser,
-    );
   }
 
   // async findPrnByPrnNo(poNo: string): Promise<po> {

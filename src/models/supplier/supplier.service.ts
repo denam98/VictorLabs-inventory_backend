@@ -19,11 +19,6 @@ export class SupplierService {
     private readonly requestService: RequestService,
   ) {
     this.currUser = this.requestService.getUserId();
-    this.errorService.printLog(
-      'info',
-      SupplierService.name,
-      'current user ===> ' + this.currUser,
-    );
   }
 
   async findSupplierByName(name: string): Promise<supplier[]> {
@@ -279,7 +274,6 @@ export class SupplierService {
         async (contact: AddSupplierContactDTO) => {
           const id = contact.id ? contact.id : -1;
           contact.id ? delete contact.id : null;
-          console.log(contact);
           return await this.postgreService.supplier_contact.upsert({
             where: {
               id: id,

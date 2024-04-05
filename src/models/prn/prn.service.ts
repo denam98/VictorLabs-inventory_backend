@@ -19,11 +19,6 @@ export class PrnService {
     private readonly requestService: RequestService,
   ) {
     this.currUser = this.requestService.getUserId();
-    this.errorService.printLog(
-      'info',
-      PrnService.name,
-      'current user ===> ' + this.currUser,
-    );
   }
 
   async findPrnByPrnNo(prnNo: string): Promise<prn> {
