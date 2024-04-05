@@ -190,7 +190,7 @@ model prn_item {
 
   prn_id String
   rm_id String
-  prn_item_po_item prn_item_po_item[]
+  prn_item_po prn_item_po[]
 
   prn prn @relation(fields: [prn_id], references: [id])
   rm raw_material @relation(fields: [rm_id], references: [id])
@@ -202,15 +202,17 @@ model po {
   id String @id @default(uuid())
   special_note String?
   delivery_location String
-  currency String
+  currency String @default("LKR")
   state String
   is_active Boolean @default(true)
 
   discount_type String
   discount Decimal
+  prn_item_po prn_item_po[]
 
   supplier_id String
   po_item po_item[]
+  po_tax_type po_tax_type[]
 
   supplier supplier @relation(fields: [supplier_id], references: [id])
 }
@@ -223,20 +225,39 @@ model po_item {
 
   po_id String
   rm_id String
-  prn_item_po_item prn_item_po_item[]
 
   po po @relation(fields: [po_id], references: [id])
   rm raw_material @relation(fields: [rm_id], references: [id])
 }
 
-model prn_item_po_item {
+model prn_item_po {
   id String @id @default(uuid())
   is_active Boolean @default(true)
 
   prn_item_id String
-  po_item_id String
+  po_id String
 
   prn_item prn_item @relation(fields: [prn_item_id], references: [id])
-  po_item po_item @relation(fields: [po_item_id], references: [id])
+  po_item po @relation(fields: [po_id], references: [id])
 }
 // Purchase order related end
+
+// Tax type related start --->
+model tax_type {
+  id Int @id @default(autoincrement())
+  name String
+  value Decimal
+
+  po_tax_type po_tax_type[]
+}
+
+model po_tax_type {
+  id Int @id @default(autoincrement())
+
+  po_id String
+  tax_type_id Int
+
+  po po @relation(fields: [po_id], references: [id])
+  tax_type tax_type @relation(fields: [tax_type_id], references: [id])
+}
+// Tax type related end

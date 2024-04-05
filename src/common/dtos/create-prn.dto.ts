@@ -1,5 +1,5 @@
 import { IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
-import { PrnItemDto } from './prn-item.dto';
+import { PrnItemDTO } from './prn-item.dto';
 
 export class CreatePrnDTO {
   @IsNotEmpty()
@@ -23,5 +23,5 @@ export class CreatePrnDTO {
   remark;
 
   @IsNotEmpty()
-  items: PrnItemDto[];
+  items: PrnItemDTO[];
 }
