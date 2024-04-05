@@ -58,7 +58,7 @@ export class SupplierController {
     return this.supplierService.updateSupplier(params);
   }
 
-  @Post('/contacts/:id')
+  @Put('/contacts/:id')
   updateContacts(
     @Param('id') supplierId: string,
     @Body() contactDtos: AddSupplierContactDTO[],
