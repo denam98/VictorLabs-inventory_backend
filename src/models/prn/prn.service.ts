@@ -2,7 +2,7 @@ import { RequestService } from 'src/config/app/request.service';
 import { ErrorService } from 'src/config/error/error.service';
 import { Injectable } from '@nestjs/common';
 import { priority, prn, prn_item } from '@prisma/client';
-import { CreatePrnDTO, PrnItemDto } from 'src/common/dtos/dto';
+import { CreatePrnDTO, PrnItemDTO } from 'src/common/dtos/dto';
 import { PostgresConfigService } from 'src/config/database/postgres/config.service';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { AppConfigService } from 'src/config/app/app-config.service';
