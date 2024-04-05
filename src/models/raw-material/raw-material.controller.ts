@@ -22,6 +22,16 @@ export class RawMaterialController {
     return this.rawMaterialService.getAllRawMaterials();
   }
 
+  @Get('categories/all')
+  getAllRawMaterialCategories() {
+    return this.rawMaterialService.getAllRawMaterialCategories();
+  }
+
+  @Get('uom/all')
+  getAllUoms() {
+    return this.rawMaterialService.getAllUoms();
+  }
+
   @Get('/:id')
   getRawMaterialById(@Param('id') materialId: string) {
     return this.rawMaterialService.getRawMaterialById(materialId);

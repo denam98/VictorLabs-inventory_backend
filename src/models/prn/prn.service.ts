@@ -1,8 +1,8 @@
 import { RequestService } from 'src/config/app/request.service';
 import { ErrorService } from 'src/config/error/error.service';
 import { Injectable } from '@nestjs/common';
-import { prn, prn_item } from '@prisma/client';
-import { CreatePrnDTO, PrnItemDTO } from 'src/common/dtos/dto';
+import { priority, prn, prn_item } from '@prisma/client';
+import { CreatePrnDTO, PrnItemDto } from 'src/common/dtos/dto';
 import { PostgresConfigService } from 'src/config/database/postgres/config.service';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { AppConfigService } from 'src/config/app/app-config.service';
@@ -74,6 +74,33 @@ export class PrnService {
         },
       });
       return prns;
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        throw this.errorService.newError(
+          this.errorService.ErrConfig.E0016,
+          error,
+          PrnService.name,
+        );
+      }
+      throw this.errorService.newError(
+        this.errorService.ErrConfig.E0010,
+        error,
+        PrnService.name,
+      );
+    }
+  }
+
+  async getAllPriorities(): Promise<priority[]> {
+    try {
+      const priorities: priority[] =
+        await this.postgreService.priority.findMany({
+          include: {
+            prn: {
+              where: { is_active: true },
+            },
+          },
+        });
+      return priorities;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         throw this.errorService.newError(

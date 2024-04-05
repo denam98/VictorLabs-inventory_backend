@@ -1,7 +1,7 @@
 import { RequestService } from 'src/config/app/request.service';
 import { ErrorService } from 'src/config/error/error.service';
 import { Injectable } from '@nestjs/common';
-import { raw_material } from '@prisma/client';
+import { raw_material, rm_category, uom } from '@prisma/client';
 import { AddRawMaterialDTO } from 'src/common/dtos/dto';
 import { PostgresConfigService } from 'src/config/database/postgres/config.service';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
@@ -85,6 +85,69 @@ export class RawMaterialService {
           },
         });
       return rawMaterial;
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        throw this.errorService.newError(
+          this.errorService.ErrConfig.E0016,
+          error,
+          RawMaterialService.name,
+        );
+      }
+      throw this.errorService.newError(
+        this.errorService.ErrConfig.E0010,
+        error,
+        RawMaterialService.name,
+      );
+    }
+  }
+
+  async getAllUoms(): Promise<uom[]> {
+    try {
+      const uoms: uom[] = await this.postgreService.uom.findMany({
+        where: {
+          is_active: true,
+        },
+        include: {
+          raw_material: {
+            where: {
+              is_active: true,
+            },
+          },
+        },
+      });
+      return uoms;
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        throw this.errorService.newError(
+          this.errorService.ErrConfig.E0016,
+          error,
+          RawMaterialService.name,
+        );
+      }
+      throw this.errorService.newError(
+        this.errorService.ErrConfig.E0010,
+        error,
+        RawMaterialService.name,
+      );
+    }
+  }
+
+  async getAllRawMaterialCategories(): Promise<rm_category[]> {
+    try {
+      const rmCategories: rm_category[] =
+        await this.postgreService.rm_category.findMany({
+          where: {
+            is_active: true,
+          },
+          include: {
+            raw_material: {
+              where: {
+                is_active: true,
+              },
+            },
+          },
+        });
+      return rmCategories;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         throw this.errorService.newError(
