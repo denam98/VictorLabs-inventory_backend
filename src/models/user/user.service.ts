@@ -33,6 +33,44 @@ export class UserService {
           username: username,
           is_active: true,
         },
+        include: {
+          role: true,
+        },
+      });
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        if (error.code === 'P2001') {
+          throw this.errorService.newError(
+            this.errorService.ErrConfig.E001,
+            error,
+            UserService.name,
+          );
+        } else {
+          throw this.errorService.newError(
+            this.errorService.ErrConfig.E0016,
+            error,
+            UserService.name,
+          );
+        }
+      }
+      throw this.errorService.newError(
+        this.errorService.ErrConfig.E0010,
+        error,
+        UserService.name,
+      );
+    }
+  }
+
+  async getAllByUsername(username: string): Promise<user[]> {
+    try {
+      return await this.postgreService.user.findMany({
+        where: {
+          username: username,
+          is_active: true,
+        },
+        include: {
+          role: true,
+        },
       });
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
@@ -64,6 +102,9 @@ export class UserService {
         where: {
           is_active: true,
         },
+        include: {
+          role: true,
+        },
       });
       return users.map((user: user) =>
         this.commonService.exclude(user, ['password']),
@@ -90,6 +131,9 @@ export class UserService {
         where: {
           user_id: userId,
           is_active: true,
+        },
+        include: {
+          role: true,
         },
       });
       return this.commonService.exclude(user, ['password']);

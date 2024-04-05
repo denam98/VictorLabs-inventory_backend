@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { RawMaterialService } from './raw-material.service';
@@ -16,16 +17,29 @@ import { AddRawMaterialDTO } from 'src/common/dtos/dto';
 export class RawMaterialController {
   constructor(private rawMaterialService: RawMaterialService) {}
 
-  // @UseGuards(JwtAuthGuard)
   @Get('all')
   getAllRawMaterials() {
     return this.rawMaterialService.getAllRawMaterials();
   }
 
-  // @UseGuards(JwtAuthGuard)
+  @Get('categories/all')
+  getAllRawMaterialCategories() {
+    return this.rawMaterialService.getAllRawMaterialCategories();
+  }
+
+  @Get('uom/all')
+  getAllUoms() {
+    return this.rawMaterialService.getAllUoms();
+  }
+
   @Get('/:id')
   getRawMaterialById(@Param('id') materialId: string) {
     return this.rawMaterialService.getRawMaterialById(materialId);
+  }
+
+  @Get('/')
+  getRawMaterialByName(@Query('name') name: string) {
+    return this.rawMaterialService.findRawMaterialByName(name);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -34,7 +48,6 @@ export class RawMaterialController {
     return this.rawMaterialService.addRawMaterial(addRawMaterialDto);
   }
 
-  // @UseGuards(JwtAuthGuard)
   @Delete('/:id')
   deleteRawMaterial(@Param('id') materialId: string) {
     return this.rawMaterialService.deleteRawMaterial(materialId);
