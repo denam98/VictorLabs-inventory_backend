@@ -22,6 +22,11 @@ export class PrnController {
     return this.prnService.getAllPrn();
   }
 
+  @Get('priorities/all')
+  getAllPriorities() {
+    return this.prnService.getAllPriorities();
+  }
+
   @Get('/:id')
   getPrn(@Param('id') prnId: string) {
     return this.prnService.getPrn(prnId);

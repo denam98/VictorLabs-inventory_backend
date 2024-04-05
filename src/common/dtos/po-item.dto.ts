@@ -1,18 +1,18 @@
 import { Transform } from 'class-transformer';
 import { IsDecimal, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
-export class PrnItemDTO {
+export class PoItemDTO {
   @IsOptional()
   @IsString()
   id;
 
   @IsString()
-  @IsNotEmpty()
-  rm_id;
-
-  @IsString()
   @IsOptional()
-  prn_id;
+  po_id;
+
+  @IsNotEmpty()
+  @IsString()
+  rm_id;
 
   @IsNotEmpty()
   @Transform(({ value }) => {
@@ -21,17 +21,14 @@ export class PrnItemDTO {
   @IsDecimal()
   qty;
 
-  @IsOptional()
-  @Transform(({ value }) => {
-    return String(value);
-  })
-  @IsDecimal()
-  ordered_qty;
-
   @IsNotEmpty()
   @Transform(({ value }) => {
     return String(value);
   })
   @IsDecimal()
-  estimated_price_per_unit;
+  price_per_unit;
+
+  @IsNotEmpty()
+  @IsString()
+  prn_item_id;
 }
