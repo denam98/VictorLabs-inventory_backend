@@ -1,37 +1,39 @@
 import { Transform } from 'class-transformer';
 import { IsDecimal, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { PoItemDTO } from './po-item.dto';
 
-export class PrnItemDTO {
+export class CreatePoDTO {
+  @IsNotEmpty()
+  @IsString()
+  supplier_id;
+
   @IsOptional()
   @IsString()
-  id;
+  special_note;
 
-  @IsString()
-  @IsNotEmpty()
-  rm_id;
-
-  @IsString()
   @IsOptional()
-  prn_id;
+  @IsString()
+  delivery_location;
 
-  @IsNotEmpty()
+  @IsOptional()
+  @IsString()
+  currency;
+
+  @IsOptional()
+  @IsString()
+  state;
+
+  @IsOptional()
+  @IsString()
+  discount_type;
+
+  @IsOptional()
   @Transform(({ value }) => {
     return String(value);
   })
   @IsDecimal()
-  qty;
-
-  @IsOptional()
-  @Transform(({ value }) => {
-    return String(value);
-  })
-  @IsDecimal()
-  ordered_qty;
+  discount;
 
   @IsNotEmpty()
-  @Transform(({ value }) => {
-    return String(value);
-  })
-  @IsDecimal()
-  estimated_price_per_unit;
+  items: PoItemDTO[];
 }

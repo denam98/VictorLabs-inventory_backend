@@ -22,6 +22,7 @@ import { RawMaterialModule } from './models/raw-material/raw-material.module';
 import { SupplierModule } from './models/supplier/supplier.module';
 import { RawMaterialSupplierModule } from './models/rawmaterial-supplier/rm-supplier.module';
 import { PrnModule } from './models/prn/prn.module';
+import { PoModule } from './models/po/po.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { PrnModule } from './models/prn/prn.module';
     RawMaterialSupplierModule,
     AuthModule,
     PrnModule,
+    PoModule,
     PostgresConfigModule,
     ErrorModule,
     MailerModule.forRoot({

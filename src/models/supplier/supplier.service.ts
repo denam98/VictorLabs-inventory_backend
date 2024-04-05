@@ -273,21 +273,31 @@ export class SupplierService {
   async updateContactDetails(
     contacts: AddSupplierContactDTO[],
     supplierId: string,
-  ): Promise<Promise<supplier_contact>[]> {
+  ): Promise<supplier_contact[]> {
     try {
-      return await contacts.map(async (contact: AddSupplierContactDTO) => {
-        const id = contact.id ? contact.id : null;
-        contact.id ? delete contact.id : null;
-        console.log(contact);
-        return await this.postgreService.supplier_contact.upsert({
-          where: {
-            id: id,
-            supplier_id: supplierId,
-            is_active: true,
-          },
-          update: contact,
-          create: contact,
-        });
+      const updatedContacts: Promise<supplier_contact>[] = await contacts.map(
+        async (contact: AddSupplierContactDTO) => {
+          const id = contact.id ? contact.id : -1;
+          contact.id ? delete contact.id : null;
+          console.log(contact);
+          return await this.postgreService.supplier_contact.upsert({
+            where: {
+              id: id,
+              supplier_id: supplierId,
+              is_active: true,
+            },
+            update: contact,
+            create: contact,
+          });
+        },
+      );
+      await this.commonService.recordSystemActivity(
+        SystemActivity.update_supplier,
+        this.currUser,
+        supplierId,
+      );
+      return Promise.all(updatedContacts).then((data) => {
+        return data;
       });
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
