@@ -16,32 +16,32 @@ export class UserController {
   constructor(private userService: UserService) {}
 
   @Get('all')
-  getAllUsers() {
-    return this.userService.getAllUsers();
+  async getAllUsers() {
+    return await this.userService.getAllUsers();
   }
 
   @Get('/:id')
-  getUser(@Param('id') userId: string) {
-    return this.userService.getUser(userId);
+  async getUser(@Param('id') userId: string) {
+    return await this.userService.getUser(userId);
   }
 
   @Get('/')
-  getUserByUsername(@Query('uname') uname: string) {
-    return this.userService.getAllByUsername(uname);
+  async getUserByUsername(@Query('uname') uname: string) {
+    return await this.userService.getAllByUsername(uname);
   }
 
   @Post('/register')
-  createUser(@Body() registerUserDto: RegisterUserDTO) {
-    return this.userService.registerUser(registerUserDto);
+  async createUser(@Body() registerUserDto: RegisterUserDTO) {
+    return await this.userService.registerUser(registerUserDto);
   }
 
   @Delete('/:id')
-  deleteUser(@Param('id') userId: string) {
-    return this.userService.deleteUser(userId);
+  async deleteUser(@Param('id') userId: string) {
+    return await this.userService.deleteUser(userId);
   }
 
   @Put('/:id')
-  updateUser(
+  async updateUser(
     @Param('id') userId: string,
     @Body() updateUserDto: UpdateUserDTO,
   ) {
@@ -49,6 +49,6 @@ export class UserController {
       where: { user_id: userId, is_active: true },
       data: updateUserDto,
     };
-    return this.userService.updateUser(params);
+    return await this.userService.updateUser(params);
   }
 }
