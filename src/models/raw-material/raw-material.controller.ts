@@ -18,43 +18,49 @@ export class RawMaterialController {
   constructor(private rawMaterialService: RawMaterialService) {}
 
   @Get('all')
-  getAllRawMaterials() {
-    return this.rawMaterialService.getAllRawMaterials();
+  async getAllRawMaterials() {
+    return await this.rawMaterialService.getAllRawMaterials();
   }
 
   @Get('categories/all')
-  getAllRawMaterialCategories() {
-    return this.rawMaterialService.getAllRawMaterialCategories();
+  async getAllRawMaterialCategories() {
+    return await this.rawMaterialService.getAllRawMaterialCategories();
   }
 
   @Get('uom/all')
-  getAllUoms() {
-    return this.rawMaterialService.getAllUoms();
+  async getAllUoms() {
+    return await this.rawMaterialService.getAllUoms();
   }
 
   @Get('/:id')
-  getRawMaterialById(@Param('id') materialId: string) {
-    return this.rawMaterialService.getRawMaterialById(materialId);
+  async getRawMaterialById(@Param('id') materialId: string) {
+    return await this.rawMaterialService.getRawMaterialById(materialId);
   }
 
-  @Get('/')
-  getRawMaterialByName(@Query('name') name: string) {
-    return this.rawMaterialService.findRawMaterialByName(name);
+  @Get('')
+  async getRawMaterialByName(@Query('name') name: string) {
+    return await this.rawMaterialService.findRawMaterialByName(name);
+  }
+
+  @Post('list')
+  async getRawMaterialsByIds(@Body() idList: string[]) {
+    console.log('ID list ==> ', idList);
+    return await this.rawMaterialService.getRawMaterialsByIds(idList);
   }
 
   @UseGuards(JwtAuthGuard)
   @Post('/add')
-  addRawMaterial(@Body() addRawMaterialDto: AddRawMaterialDTO) {
-    return this.rawMaterialService.addRawMaterial(addRawMaterialDto);
+  async addRawMaterial(@Body() addRawMaterialDto: AddRawMaterialDTO) {
+    return await this.rawMaterialService.addRawMaterial(addRawMaterialDto);
   }
 
   @Delete('/:id')
-  deleteRawMaterial(@Param('id') materialId: string) {
-    return this.rawMaterialService.deleteRawMaterial(materialId);
+  async deleteRawMaterial(@Param('id') materialId: string) {
+    return await this.rawMaterialService.deleteRawMaterial(materialId);
   }
 
   @Put('/:id')
-  updateRawMaterial(
+  async updateRawMaterial(
     @Param('id') materialId: string,
     @Body() addRawMaterialDto: AddRawMaterialDTO,
   ) {
@@ -62,6 +68,6 @@ export class RawMaterialController {
       where: { id: materialId, is_active: true },
       data: addRawMaterialDto,
     };
-    return this.rawMaterialService.updateRawMaterial(params);
+    return await this.rawMaterialService.updateRawMaterial(params);
   }
 }
