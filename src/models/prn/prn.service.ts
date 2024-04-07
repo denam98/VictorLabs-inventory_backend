@@ -1,15 +1,15 @@
 import { RequestService } from 'src/config/app/request.service';
 import { ErrorService } from 'src/config/error/error.service';
 import { Injectable } from '@nestjs/common';
-import { raw_material, rm_category, uom } from '@prisma/client';
-import { AddRawMaterialDTO } from 'src/common/dtos/dto';
+import { priority, prn, prn_item } from '@prisma/client';
+import { CreatePrnDTO, PrnItemDTO } from 'src/common/dtos/dto';
 import { PostgresConfigService } from 'src/config/database/postgres/config.service';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { AppConfigService } from 'src/config/app/app-config.service';
 import { SystemActivity } from 'src/common/util/system-activity.enum';
 
 @Injectable()
-export class RawMaterialService {
+export class PrnService {
   currUser: string;
 
   constructor(
@@ -21,309 +21,303 @@ export class RawMaterialService {
     this.currUser = this.requestService.getUserId();
     this.errorService.printLog(
       'info',
-      RawMaterialService.name,
+      PrnService.name,
       'current user ===> ' + this.currUser,
     );
   }
 
-  async findRawMaterialByName(name: string): Promise<raw_material[]> {
+  async findPrnByPrnNo(prnNo: string): Promise<prn> {
     try {
-      return await this.postgreService.raw_material.findMany({
+      return await this.postgreService.prn.findFirst({
         where: {
-          name: name,
+          prn_no: prnNo,
           is_active: true,
         },
         include: {
-          supplier: {
-            where: {
-              is_active: true,
-            },
-          },
-          rm_category: true,
-          uom: true,
+          prn_item: true,
+          priority: true,
         },
       });
-    } catch (error) {
-      if (error instanceof PrismaClientKnownRequestError) {
-        if (error.code === 'P2001') {
-          throw this.errorService.newError(
-            this.errorService.ErrConfig.E001,
-            error,
-            RawMaterialService.name,
-          );
-        } else {
-          throw this.errorService.newError(
-            this.errorService.ErrConfig.E0016,
-            error,
-            RawMaterialService.name,
-          );
-        }
-      }
-      throw this.errorService.newError(
-        this.errorService.ErrConfig.E0010,
-        error,
-        RawMaterialService.name,
-      );
-    }
-  }
-
-  async getAllRawMaterials(): Promise<raw_material[]> {
-    try {
-      const rawMaterial: raw_material[] =
-        await this.postgreService.raw_material.findMany({
-          where: {
-            is_active: true,
-          },
-          include: {
-            supplier: {
-              where: {
-                is_active: true,
-              },
-            },
-            rm_category: true,
-            uom: true,
-          },
-        });
-      return rawMaterial;
-    } catch (error) {
-      if (error instanceof PrismaClientKnownRequestError) {
-        throw this.errorService.newError(
-          this.errorService.ErrConfig.E0016,
-          error,
-          RawMaterialService.name,
-        );
-      }
-      throw this.errorService.newError(
-        this.errorService.ErrConfig.E0010,
-        error,
-        RawMaterialService.name,
-      );
-    }
-  }
-
-  async getAllUoms(): Promise<uom[]> {
-    try {
-      const uoms: uom[] = await this.postgreService.uom.findMany({
-        where: {
-          is_active: true,
-        },
-        include: {
-          raw_material: {
-            where: {
-              is_active: true,
-            },
-          },
-        },
-      });
-      return uoms;
-    } catch (error) {
-      if (error instanceof PrismaClientKnownRequestError) {
-        throw this.errorService.newError(
-          this.errorService.ErrConfig.E0016,
-          error,
-          RawMaterialService.name,
-        );
-      }
-      throw this.errorService.newError(
-        this.errorService.ErrConfig.E0010,
-        error,
-        RawMaterialService.name,
-      );
-    }
-  }
-
-  async getAllRawMaterialCategories(): Promise<rm_category[]> {
-    try {
-      const rmCategories: rm_category[] =
-        await this.postgreService.rm_category.findMany({
-          where: {
-            is_active: true,
-          },
-          include: {
-            raw_material: {
-              where: {
-                is_active: true,
-              },
-            },
-          },
-        });
-      return rmCategories;
-    } catch (error) {
-      if (error instanceof PrismaClientKnownRequestError) {
-        throw this.errorService.newError(
-          this.errorService.ErrConfig.E0016,
-          error,
-          RawMaterialService.name,
-        );
-      }
-      throw this.errorService.newError(
-        this.errorService.ErrConfig.E0010,
-        error,
-        RawMaterialService.name,
-      );
-    }
-  }
-
-  async getRawMaterialById(materialId: string): Promise<raw_material> {
-    try {
-      const rawMaterial: raw_material =
-        await this.postgreService.raw_material.findFirstOrThrow({
-          where: {
-            id: materialId,
-            is_active: true,
-          },
-          include: {
-            supplier: {
-              where: {
-                is_active: true,
-              },
-            },
-            rm_category: true,
-            uom: true,
-          },
-        });
-      return rawMaterial;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0012,
             error,
-            RawMaterialService.name,
+            PrnService.name,
           );
         } else {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0016,
             error,
-            RawMaterialService.name,
+            PrnService.name,
           );
         }
       }
       throw this.errorService.newError(
         this.errorService.ErrConfig.E0010,
         error,
-        RawMaterialService.name,
+        PrnService.name,
       );
     }
   }
 
-  async addRawMaterial(
-    addRawMaterailDto: AddRawMaterialDTO,
-  ): Promise<raw_material> {
+  async getAllPrn(): Promise<prn[]> {
     try {
-      const rawMaterial: raw_material =
-        await this.postgreService.raw_material.create({
-          data: addRawMaterailDto,
-        });
-      await this.commonService.recordSystemActivity(
-        SystemActivity.add_raw_material,
-        this.currUser,
-        rawMaterial.id,
+      const prns: prn[] = await this.postgreService.prn.findMany({
+        where: {
+          is_active: true,
+        },
+        include: {
+          prn_item: true,
+          priority: true,
+        },
+      });
+      return prns;
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        throw this.errorService.newError(
+          this.errorService.ErrConfig.E0016,
+          error,
+          PrnService.name,
+        );
+      }
+      throw this.errorService.newError(
+        this.errorService.ErrConfig.E0010,
+        error,
+        PrnService.name,
       );
-      return rawMaterial;
+    }
+  }
+
+  async getAllPriorities(): Promise<priority[]> {
+    try {
+      const priorities: priority[] =
+        await this.postgreService.priority.findMany({
+          include: {
+            prn: {
+              where: { is_active: true },
+            },
+          },
+        });
+      return priorities;
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        throw this.errorService.newError(
+          this.errorService.ErrConfig.E0016,
+          error,
+          PrnService.name,
+        );
+      }
+      throw this.errorService.newError(
+        this.errorService.ErrConfig.E0010,
+        error,
+        PrnService.name,
+      );
+    }
+  }
+
+  async getPrn(prnId: string): Promise<prn> {
+    try {
+      const prn: prn = await this.postgreService.prn.findFirstOrThrow({
+        where: {
+          id: prnId,
+          is_active: true,
+        },
+        include: {
+          prn_item: true,
+          priority: true,
+        },
+      });
+      return prn;
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        if (error.code === 'P2025') {
+          throw this.errorService.newError(
+            this.errorService.ErrConfig.E0012,
+            error,
+            PrnService.name,
+          );
+        } else {
+          throw this.errorService.newError(
+            this.errorService.ErrConfig.E0016,
+            error,
+            PrnService.name,
+          );
+        }
+      }
+      throw this.errorService.newError(
+        this.errorService.ErrConfig.E0010,
+        error,
+        PrnService.name,
+      );
+    }
+  }
+
+  async createPrn(createPrnDto: CreatePrnDTO): Promise<prn> {
+    try {
+      const prnItems: PrnItemDTO[] = createPrnDto.items;
+      delete createPrnDto.items;
+      const prn: prn = await this.postgreService.prn.create({
+        data: createPrnDto,
+      });
+
+      const prnItemCreationPromises: Promise<prn_item>[] = prnItems.map(
+        (item: PrnItemDTO) => {
+          item['prn_id'] = prn.id;
+          return this.postgreService.prn_item.create({
+            data: item,
+          });
+        },
+      );
+      await Promise.all(prnItemCreationPromises)
+        .then((rslt) => {
+          prn['prn_item'] = rslt;
+        })
+        .catch((error) => {
+          throw this.errorService.newError(
+            this.errorService.ErrConfig.E0019,
+            error,
+            PrnService.name,
+          );
+        });
+
+      await this.commonService.recordSystemActivity(
+        SystemActivity.create_prn,
+        this.currUser,
+        prn.id,
+      );
+      return prn;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E006,
             error,
-            RawMaterialService.name,
+            PrnService.name,
           );
         } else {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0019,
             error,
-            RawMaterialService.name,
+            PrnService.name,
           );
         }
       }
       throw this.errorService.newError(
         this.errorService.ErrConfig.E0010,
         error,
-        RawMaterialService.name,
+        PrnService.name,
       );
     }
   }
 
-  async deleteRawMaterial(materialId: string): Promise<raw_material> {
+  async deletePrn(prnId: string): Promise<prn> {
     try {
-      const rawMaterial: raw_material =
-        await this.postgreService.raw_material.update({
-          where: {
-            id: materialId,
-            is_active: true,
-          },
-          data: {
-            is_active: false,
-          },
-        });
+      const prn: prn = await this.postgreService.prn.update({
+        where: {
+          id: prnId,
+          is_active: true,
+        },
+        data: {
+          is_active: false,
+        },
+      });
       await this.commonService.recordSystemActivity(
-        SystemActivity.delete_raw_material,
+        SystemActivity.delete_prn,
         this.currUser,
-        rawMaterial.id,
+        prn.id,
       );
-      return rawMaterial;
+      return prn;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0012,
             error,
-            RawMaterialService.name,
+            PrnService.name,
           );
         } else {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0018,
             error,
-            RawMaterialService.name,
+            PrnService.name,
           );
         }
       }
       throw this.errorService.newError(
         this.errorService.ErrConfig.E0010,
         error,
-        RawMaterialService.name,
+        PrnService.name,
       );
     }
   }
 
-  async updateRawMaterial(params: {
+  async updatePrn(params: {
     where: { id: string; is_active: boolean };
-    data: AddRawMaterialDTO;
-  }): Promise<raw_material> {
+    data: CreatePrnDTO;
+  }): Promise<prn> {
     try {
       const { where, data } = params;
-      const rawMaterial: raw_material =
-        await this.postgreService.raw_material.update({
-          where,
-          data,
-        });
-      await this.commonService.recordSystemActivity(
-        SystemActivity.update_raw_material,
-        this.currUser,
-        rawMaterial.id,
+      const prnItems: PrnItemDTO[] = data.items;
+      delete data.items;
+      const prn: prn = await this.postgreService.prn.update({
+        where,
+        data,
+      });
+
+      const prnItemCreationPromises: Promise<prn_item>[] = prnItems.map(
+        (item: PrnItemDTO) => {
+          item['prn_id'] = prn.id;
+          const itemId = item.id && item.id != '' ? item.id : null;
+          return this.postgreService.prn_item.upsert({
+            where: {
+              id: itemId,
+              is_active: true,
+            },
+            update: item,
+            create: item,
+          });
+        },
       );
-      return rawMaterial;
+      await Promise.all(prnItemCreationPromises)
+        .then((rslt) => {
+          prn['prn_item'] = rslt;
+        })
+        .catch((error) => {
+          throw this.errorService.newError(
+            this.errorService.ErrConfig.E0019,
+            error,
+            PrnService.name,
+          );
+        });
+
+      await this.commonService.recordSystemActivity(
+        SystemActivity.update_prn,
+        this.currUser,
+        prn.id,
+      );
+      return prn;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0012,
             error,
-            RawMaterialService.name,
+            PrnService.name,
           );
         } else {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0019,
             error,
-            RawMaterialService.name,
+            PrnService.name,
           );
         }
       }
       throw this.errorService.newError(
         this.errorService.ErrConfig.E0010,
         error,
-        RawMaterialService.name,
+        PrnService.name,
       );
     }
   }

@@ -39,7 +39,7 @@ export class AppConfigService {
   async recordSystemActivity(
     type: SystemActivity,
     userId: string,
-    recordId?: string,
+    recordId?: string | number,
   ) {
     if (type === SystemActivity.user_login)
       await this.postgresService.sys_login.create({
@@ -54,7 +54,7 @@ export class AppConfigService {
           timestamp: new Date(),
           user_id: userId,
           activity_id: type,
-          record_id: recordId,
+          record_id: typeof recordId === 'number' ? String(recordId) : recordId,
         },
       });
     this.errorService.printLog(
