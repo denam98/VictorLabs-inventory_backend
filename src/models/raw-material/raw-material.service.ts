@@ -202,6 +202,55 @@ export class RawMaterialService {
     }
   }
 
+  async getRawMaterialsByIds(idList: string[]): Promise<raw_material[]> {
+    try {
+      const promiseList: Promise<raw_material>[] = idList.map(
+        async (materialId: string) => {
+          return await this.postgreService.raw_material.findFirstOrThrow({
+            where: {
+              id: materialId,
+              is_active: true,
+            },
+            include: {
+              supplier: {
+                where: {
+                  is_active: true,
+                },
+              },
+              rm_category: true,
+              uom: true,
+            },
+          });
+        },
+      );
+
+      return Promise.all(promiseList).then((result: raw_material[]) => {
+        return result;
+      });
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        if (error.code === 'P2025') {
+          throw this.errorService.newError(
+            this.errorService.ErrConfig.E0012,
+            error,
+            RawMaterialService.name,
+          );
+        } else {
+          throw this.errorService.newError(
+            this.errorService.ErrConfig.E0016,
+            error,
+            RawMaterialService.name,
+          );
+        }
+      }
+      throw this.errorService.newError(
+        this.errorService.ErrConfig.E0010,
+        error,
+        RawMaterialService.name,
+      );
+    }
+  }
+
   async addRawMaterial(
     addRawMaterailDto: AddRawMaterialDTO,
   ): Promise<raw_material> {

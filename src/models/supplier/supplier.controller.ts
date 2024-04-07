@@ -16,38 +16,38 @@ export class SupplierController {
   constructor(private supplierService: SupplierService) {}
 
   @Get('all')
-  getAllSuppliers() {
-    return this.supplierService.getAllSuppliers();
+  async getAllSuppliers() {
+    return await this.supplierService.getAllSuppliers();
   }
 
   @Get('/:id')
-  getSupplierById(@Param('id') supplierId: string) {
-    return this.supplierService.getSupplierById(supplierId);
+  async getSupplierById(@Param('id') supplierId: string) {
+    return await this.supplierService.getSupplierById(supplierId);
   }
 
   @Get('/')
-  getSupplierByName(@Param('name') name: string) {
-    return this.supplierService.findSupplierByName(name);
+  async getSupplierByName(@Param('name') name: string) {
+    return await this.supplierService.findSupplierByName(name);
   }
 
   @Post('/add')
-  addSupplier(
+  async addSupplier(
     @Body()
     data: {
       addSupplierDto: AddSupplierDTO;
       supplierContacts: AddSupplierContactDTO[];
     },
   ) {
-    return this.supplierService.addSupplier(data);
+    return await this.supplierService.addSupplier(data);
   }
 
   @Delete('/:id')
-  deleteSupplier(@Param('id') supplierId: string) {
-    return this.supplierService.deleteSupplier(supplierId);
+  async deleteSupplier(@Param('id') supplierId: string) {
+    return await this.supplierService.deleteSupplier(supplierId);
   }
 
   @Put('/:id')
-  updateSupplier(
+  async updateSupplier(
     @Param('id') supplierId: string,
     @Body() addSupplierDto: AddSupplierDTO,
   ) {
@@ -55,14 +55,17 @@ export class SupplierController {
       where: { id: supplierId, is_active: true },
       data: addSupplierDto,
     };
-    return this.supplierService.updateSupplier(params);
+    return await this.supplierService.updateSupplier(params);
   }
 
   @Put('/contacts/:id')
-  updateContacts(
+  async updateContacts(
     @Param('id') supplierId: string,
     @Body() contactDtos: AddSupplierContactDTO[],
   ) {
-    return this.supplierService.updateContactDetails(contactDtos, supplierId);
+    return await this.supplierService.updateContactDetails(
+      contactDtos,
+      supplierId,
+    );
   }
 }
