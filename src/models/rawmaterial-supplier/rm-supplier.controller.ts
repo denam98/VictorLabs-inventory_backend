@@ -16,32 +16,40 @@ export class RawMaterialSupplierController {
   constructor(private rawMaterialSupplierService: RawMaterialSupplierService) {}
 
   @Get('supplier/:id')
-  getAllBySupplierId(@Param('id') rmSupplierId: string) {
-    return this.rawMaterialSupplierService.getAllBySupplierId(rmSupplierId);
+  async getAllBySupplierId(@Param('id') rmSupplierId: string) {
+    return await this.rawMaterialSupplierService.getAllBySupplierId(
+      rmSupplierId,
+    );
   }
 
   @Get('raw-material/:id')
-  getAllByRawMaterialId(@Param('id') rmId: string) {
-    return this.rawMaterialSupplierService.getAllByRawMaterialId(rmId);
+  async getAllByRawMaterialId(@Param('id') rmId: string) {
+    return await this.rawMaterialSupplierService.getAllByRawMaterialId(rmId);
   }
 
   @Get('/:id')
-  getRawMaterialSupplierById(@Param('id', ParseIntPipe) rmSupplierId: number) {
-    return this.rawMaterialSupplierService.getRawMaterialSupplierById(
+  async getRawMaterialSupplierById(
+    @Param('id', ParseIntPipe) rmSupplierId: number,
+  ) {
+    return await this.rawMaterialSupplierService.getRawMaterialSupplierById(
       rmSupplierId,
     );
   }
 
   @Post('/add')
-  addRawMaterialSupplier(@Body() rmSupplierDto: AddRawMaterialSupplierDTO) {
-    return this.rawMaterialSupplierService.addRawMaterialSupplier(
+  async addRawMaterialSupplier(
+    @Body() rmSupplierDto: AddRawMaterialSupplierDTO,
+  ) {
+    return await this.rawMaterialSupplierService.addRawMaterialSupplier(
       rmSupplierDto,
     );
   }
 
   @Delete('/:id')
-  deleteRawMaterialSupplier(@Param('id', ParseIntPipe) rmSupplierId: number) {
-    return this.rawMaterialSupplierService.deleteRawMaterialSupplier(
+  async deleteRawMaterialSupplier(
+    @Param('id', ParseIntPipe) rmSupplierId: number,
+  ) {
+    return await this.rawMaterialSupplierService.deleteRawMaterialSupplier(
       rmSupplierId,
     );
   }

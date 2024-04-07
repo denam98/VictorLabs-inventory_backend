@@ -17,13 +17,13 @@ export class PoController {
   constructor(private poService: PoService) {}
 
   @Get('all')
-  getAllPrn() {
-    return this.poService.getAllPrn();
+  async getAllPrn() {
+    return await this.poService.getAllPrn();
   }
 
   @Get('/:id')
-  getPrn(@Param('id') prnId: string) {
-    return this.poService.getPrn(prnId);
+  async getPrn(@Param('id') prnId: string) {
+    return await this.poService.getPrn(prnId);
   }
 
   // @Get('')
@@ -33,21 +33,24 @@ export class PoController {
 
   @UseGuards(JwtAuthGuard)
   @Post('/add')
-  createPrn(@Body() createPoDto: CreatePoDTO) {
-    return this.poService.createPrn(createPoDto);
+  async createPrn(@Body() createPoDto: CreatePoDTO) {
+    return await this.poService.createPrn(createPoDto);
   }
 
   @Delete('/:id')
-  deletePrn(@Param('id') prnId: string) {
-    return this.poService.deletePrn(prnId);
+  async deletePrn(@Param('id') prnId: string) {
+    return await this.poService.deletePrn(prnId);
   }
 
   @Put('/:id')
-  updatePrn(@Param('id') prnId: string, @Body() createPoDto: CreatePoDTO) {
+  async updatePrn(
+    @Param('id') prnId: string,
+    @Body() createPoDto: CreatePoDTO,
+  ) {
     const params = {
       where: { id: prnId, is_active: true },
       data: createPoDto,
     };
-    return this.poService.updatePrn(params);
+    return await this.poService.updatePrn(params);
   }
 }
