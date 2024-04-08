@@ -32,7 +32,6 @@ export class PoController {
     return this.poService.findPoByPoNo(poNo);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Post('/add')
   async createPo(@Body() createPoDto: CreatePoDTO) {
     return await this.poService.createPo(createPoDto);
