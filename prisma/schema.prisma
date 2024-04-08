@@ -200,6 +200,7 @@ model prn_item {
 // Purchase order related start --->
 model po {
   id String @id @default(uuid())
+  po_no String
   special_note String?
   delivery_location String
   currency String @default("LKR")

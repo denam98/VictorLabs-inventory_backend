@@ -27,42 +27,7 @@ export class PoService {
     );
   }
 
-  // async findPrnByPrnNo(poNo: string): Promise<po> {
-  //   try {
-  //     return await this.postgreService.po.findFirst({
-  //       where: {
-  //         po_no: poNo,
-  //         is_active: true,
-  //       },
-  //       include: {
-  //         po_item: true,
-  //       },
-  //     });
-  //   } catch (error) {
-  //     if (error instanceof PrismaClientKnownRequestError) {
-  //       if (error.code === 'P2025') {
-  //         throw this.errorService.newError(
-  //           this.errorService.ErrConfig.E0012,
-  //           error,
-  //           PoService.name,
-  //         );
-  //       } else {
-  //         throw this.errorService.newError(
-  //           this.errorService.ErrConfig.E0016,
-  //           error,
-  //           PoService.name,
-  //         );
-  //       }
-  //     }
-  //     throw this.errorService.newError(
-  //       this.errorService.ErrConfig.E0010,
-  //       error,
-  //       PoService.name,
-  //     );
-  //   }
-  // }
-
-  async getAllPrn(): Promise<po[]> {
+  async getAllPo(): Promise<po[]> {
     try {
       const prns: po[] = await this.postgreService.po.findMany({
         where: {
@@ -70,6 +35,9 @@ export class PoService {
         },
         include: {
           po_item: true,
+          supplier: true,
+          po_tax_type: true,
+          prn_item_po: true,
         },
       });
       return prns;
@@ -89,15 +57,18 @@ export class PoService {
     }
   }
 
-  async getPrn(prnId: string): Promise<po> {
+  async getPo(poId: string): Promise<po> {
     try {
       const po: po = await this.postgreService.po.findFirstOrThrow({
         where: {
-          id: prnId,
+          id: poId,
           is_active: true,
         },
         include: {
           po_item: true,
+          supplier: true,
+          po_tax_type: true,
+          prn_item_po: true,
         },
       });
       return po;
@@ -125,16 +96,66 @@ export class PoService {
     }
   }
 
-  async createPrn(createPoDto: CreatePoDTO): Promise<po> {
+  async findPoByPoNo(poNo: string): Promise<po> {
+    try {
+      return await this.postgreService.po.findFirst({
+        where: {
+          po_no: poNo,
+          is_active: true,
+        },
+        include: {
+          po_item: true,
+          supplier: true,
+          po_tax_type: true,
+          prn_item_po: true,
+        },
+      });
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        if (error.code === 'P2025') {
+          throw this.errorService.newError(
+            this.errorService.ErrConfig.E0012,
+            error,
+            PoService.name,
+          );
+        } else {
+          throw this.errorService.newError(
+            this.errorService.ErrConfig.E0016,
+            error,
+            PoService.name,
+          );
+        }
+      }
+      throw this.errorService.newError(
+        this.errorService.ErrConfig.E0010,
+        error,
+        PoService.name,
+      );
+    }
+  }
+
+  async createPo(createPoDto: CreatePoDTO): Promise<po> {
     try {
       const poItems: PoItemDTO[] = createPoDto.items;
       delete createPoDto.items;
+
       const po: po = await this.postgreService.po.create({
         data: createPoDto,
       });
 
-      // Inserting data into prn_item_po table
+      // Inserting data into prn_item_po table and prn_item table qty
       const prnItemPoCreationPromises = poItems.map((item: PoItemDTO) => {
+        // updating prn_item table qty
+        this.postgreService.prn_item.update({
+          where: {
+            id: item.prn_item_id,
+          },
+          data: {
+            ordered_qty: item.qty,
+          },
+        });
+
+        // Inserting data into prn_item_po table
         const clonedItem = lodash.cloneDeep(item);
 
         clonedItem.price_per_unit ? delete clonedItem.price_per_unit : null;
@@ -210,11 +231,11 @@ export class PoService {
     }
   }
 
-  async deletePrn(prnId: string): Promise<po> {
+  async deletePo(poId: string): Promise<po> {
     try {
       const po: po = await this.postgreService.po.update({
         where: {
-          id: prnId,
+          id: poId,
           is_active: true,
         },
         data: {
@@ -251,7 +272,7 @@ export class PoService {
     }
   }
 
-  async updatePrn(params: {
+  async updatePo(params: {
     where: { id: string; is_active: boolean };
     data: CreatePoDTO;
   }): Promise<po> {

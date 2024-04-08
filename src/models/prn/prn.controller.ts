@@ -37,6 +37,11 @@ export class PrnController {
     return await this.prnService.findPrnByPrnNo(prnNo);
   }
 
+  @Get('prn-items')
+  async getPrnItemsByRmId(@Query('rmId') rmId: string) {
+    return await this.prnService.findPrnItemsByRmId(rmId);
+  }
+
   @UseGuards(JwtAuthGuard)
   @Post('/add')
   async createPrn(@Body() createPrnDto: CreatePrnDTO) {

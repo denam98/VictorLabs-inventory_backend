@@ -90,6 +90,35 @@ export class PrnService {
     }
   }
 
+  async findPrnItemsByRmId(rmId: string): Promise<prn_item[]> {
+    try {
+      const prnItems: prn_item[] = await this.postgreService.prn_item.findMany({
+        where: {
+          rm_id: rmId,
+          is_active: true,
+        },
+        include: {
+          prn: true,
+          rm: true,
+        },
+      });
+      return prnItems;
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        throw this.errorService.newError(
+          this.errorService.ErrConfig.E0016,
+          error,
+          PrnService.name,
+        );
+      }
+      throw this.errorService.newError(
+        this.errorService.ErrConfig.E0010,
+        error,
+        PrnService.name,
+      );
+    }
+  }
+
   async getAllPriorities(): Promise<priority[]> {
     try {
       const priorities: priority[] =
