@@ -6,10 +6,9 @@ import {
   Param,
   Post,
   Put,
-  UseGuards,
+  Query,
 } from '@nestjs/common';
 import { PoService } from './po.service';
-import { JwtAuthGuard } from 'src/authentication/guards/jwt-auth.guard';
 import { CreatePoDTO } from 'src/common/dtos/dto';
 
 @Controller('api/v1/po')
@@ -17,40 +16,36 @@ export class PoController {
   constructor(private poService: PoService) {}
 
   @Get('all')
-  async getAllPrn() {
-    return await this.poService.getAllPrn();
+  async getAllPo() {
+    return await this.poService.getAllPo();
   }
 
   @Get('/:id')
-  async getPrn(@Param('id') prnId: string) {
-    return await this.poService.getPrn(prnId);
+  async getPo(@Param('id') poId: string) {
+    return await this.poService.getPo(poId);
   }
 
-  // @Get('')
-  // getPrnByPrnNo(@Query('prnNo') prnNo: string) {
-  //   return this.poService.findPrnByPrnNo(prnNo);
-  // }
+  @Get('')
+  getPoByPoNo(@Query('poNo') poNo: string) {
+    return this.poService.findPoByPoNo(poNo);
+  }
 
-  @UseGuards(JwtAuthGuard)
   @Post('/add')
-  async createPrn(@Body() createPoDto: CreatePoDTO) {
-    return await this.poService.createPrn(createPoDto);
+  async createPo(@Body() createPoDto: CreatePoDTO) {
+    return await this.poService.createPo(createPoDto);
   }
 
   @Delete('/:id')
-  async deletePrn(@Param('id') prnId: string) {
-    return await this.poService.deletePrn(prnId);
+  async deletePo(@Param('id') poId: string) {
+    return await this.poService.deletePo(poId);
   }
 
   @Put('/:id')
-  async updatePrn(
-    @Param('id') prnId: string,
-    @Body() createPoDto: CreatePoDTO,
-  ) {
+  async updatePo(@Param('id') poId: string, @Body() createPoDto: CreatePoDTO) {
     const params = {
-      where: { id: prnId, is_active: true },
+      where: { id: poId, is_active: true },
       data: createPoDto,
     };
-    return await this.poService.updatePrn(params);
+    return await this.poService.updatePo(params);
   }
 }

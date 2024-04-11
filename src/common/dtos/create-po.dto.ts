@@ -7,6 +7,10 @@ export class CreatePoDTO {
   @IsString()
   supplier_id;
 
+  @IsNotEmpty()
+  @IsString()
+  po_no;
+
   @IsOptional()
   @IsString()
   special_note;
