@@ -7,32 +7,24 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
-import { PoItemDTO } from './po-item.dto';
+import { GrnItemDTO } from './dto';
 
-export class CreatePoDTO {
+export class CreateGrnDTO {
   @IsNotEmpty()
   @IsString()
-  supplier_id;
+  grn_no;
+
+  @IsOptional()
+  @IsString()
+  comment;
+
+  @IsOptional()
+  @IsString()
+  supplier_inv_no;
 
   @IsNotEmpty()
   @IsString()
-  po_no;
-
-  @IsOptional()
-  @IsString()
-  special_note;
-
-  @IsOptional()
-  @IsString()
-  delivery_location;
-
-  @IsOptional()
-  @IsString()
-  currency;
-
-  @IsOptional()
-  @IsString()
-  state;
+  po_id;
 
   @IsOptional()
   @IsString()
@@ -51,5 +43,5 @@ export class CreatePoDTO {
   discount;
 
   @IsNotEmpty()
-  items: PoItemDTO[];
+  items: GrnItemDTO[];
 }

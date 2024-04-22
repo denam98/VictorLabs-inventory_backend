@@ -15,6 +15,15 @@ export enum SystemActivity {
   'create_po' = 13,
   'update_po' = 14,
   'delete_po' = 15,
+  'create_grn' = 16,
+  'update_grn' = 17,
+  'delete_grn' = 18,
+  'create_srn' = 19,
+  'update_srn' = 20,
+  'delete_srn' = 21,
+  'create_tax_type' = 22,
+  'update_tax_type' = 23,
+  'delete_tax_type' = 24,
 }
 
 export enum SystemActivityMsg {
@@ -34,4 +43,13 @@ export enum SystemActivityMsg {
   'PO created',
   'PO updated',
   'PO deleted',
+  'GRN created',
+  'GRN updated',
+  'GRN deleted',
+  'SRN created',
+  'SRN updated',
+  'SRN deleted',
+  'Tax Type created',
+  'Tax Type updated',
+  'Tax Type deleted',
 }

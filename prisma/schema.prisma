@@ -105,6 +105,8 @@ model raw_material {
   uom_id Int
   supplier rm_supplier[]
   prn_item prn_item[]
+  grn_item grn_item[]
+  srn_item srn_item[]
   po_item po_item[]
 
   rm_category rm_category @relation(fields: [rm_category_id], references: [id])
@@ -200,11 +202,12 @@ model prn_item {
 // Purchase order related start --->
 model po {
   id String @id @default(uuid())
-  po_no String
+  po_no String @unique
   special_note String?
   delivery_location String
   currency String @default("LKR")
   state String
+  created_at DateTime @default(now())
   is_active Boolean @default(true)
 
   discount_type String
@@ -214,6 +217,7 @@ model po {
   supplier_id String
   po_item po_item[]
   po_tax_type po_tax_type[]
+  grn grn?
 
   supplier supplier @relation(fields: [supplier_id], references: [id])
 }
@@ -243,13 +247,82 @@ model prn_item_po {
 }
 // Purchase order related end
 
+// Goods recieve note related start --->
+model grn {
+  id String @id @default(uuid())
+  grn_no String @unique
+  comment String?
+  discount_type String?
+  discount Decimal?
+  supplier_inv_no String
+  created_at DateTime @default(now())
+  is_active Boolean @default(true)
+
+  po_id String @unique
+
+  srn srn?
+  grn_item grn_item[]
+  grn_tax_type grn_tax_type[]
+
+  po po @relation(fields: [po_id], references: [id])
+}
+
+model grn_item {
+  id String @id @default(uuid())
+  recieved_type String
+  qty Decimal
+  price_per_unit Decimal
+  is_active Boolean @default(true)
+
+  grn_id String
+  rm_id String
+
+  grn grn @relation(fields: [grn_id], references: [id])
+  raw_material raw_material @relation(fields: [rm_id], references: [id])
+}
+// Goods recieve note related end
+
+// Supplier return note related start --->
+model srn {
+  id String @id @default(uuid())
+  srn_no String @unique
+  comment String?
+  created_at DateTime @default(now())
+  is_active Boolean @default(true)
+
+  grn_id String @unique
+  srn_tax_type srn_tax_type[]
+  srn_item srn_item[]
+
+  grn grn @relation(fields: [grn_id], references: [id])
+}
+
+model srn_item {
+  id String @id @default(uuid())
+  qty Decimal
+  reason String?
+  discount Decimal @default(0)
+  returned_by String
+  is_active Boolean @default(true)
+
+  srn_id String
+  rm_id String
+
+  srn srn @relation(fields: [srn_id], references: [id])
+  raw_material raw_material @relation(fields: [rm_id], references: [id])
+}
+// Supplier return note related end
+
 // Tax type related start --->
 model tax_type {
   id Int @id @default(autoincrement())
   name String
   value Decimal
+  is_active Boolean @default(true)
 
   po_tax_type po_tax_type[]
+  srn_tax_type srn_tax_type[]
+  grn_tax_type grn_tax_type[]
 }
 
 model po_tax_type {
@@ -259,6 +332,26 @@ model po_tax_type {
   tax_type_id Int
 
   po po @relation(fields: [po_id], references: [id])
+  tax_type tax_type @relation(fields: [tax_type_id], references: [id])
+}
+
+model srn_tax_type {
+  id Int @id @default(autoincrement())
+
+  srn_id String
+  tax_type_id Int
+
+  srn srn @relation(fields: [srn_id], references: [id])
+  tax_type tax_type @relation(fields: [tax_type_id], references: [id])
+}
+
+model grn_tax_type {
+  id Int @id @default(autoincrement())
+
+  grn_id String
+  tax_type_id Int
+
+  grn grn @relation(fields: [grn_id], references: [id])
   tax_type tax_type @relation(fields: [tax_type_id], references: [id])
 }
 // Tax type related end
