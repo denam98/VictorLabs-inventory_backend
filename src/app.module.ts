@@ -23,6 +23,8 @@ import { SupplierModule } from './models/supplier/supplier.module';
 import { RawMaterialSupplierModule } from './models/rawmaterial-supplier/rm-supplier.module';
 import { PrnModule } from './models/prn/prn.module';
 import { PoModule } from './models/po/po.module';
+import { SrnModule } from './models/srn/srn.module';
+import { TaxModule } from './models/tax/tax.module';
 
 @Module({
   imports: [
@@ -33,6 +35,8 @@ import { PoModule } from './models/po/po.module';
     RawMaterialSupplierModule,
     AuthModule,
     PrnModule,
+    SrnModule,
+    TaxModule,
     PoModule,
     PostgresConfigModule,
     ErrorModule,
