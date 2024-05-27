@@ -118,6 +118,7 @@ model raw_material {
 // Raw materials related end
 
 // Supplier related start --->
+
 model supplier {
   id String @id @default(uuid())
   name String
@@ -227,9 +228,9 @@ model po_item {
   qty Decimal
   price_per_unit Decimal
   is_active Boolean @default(true)
-
   po_id String
   rm_id String
+  prn_id String?
 
   po po @relation(fields: [po_id], references: [id])
   rm raw_material @relation(fields: [rm_id], references: [id])
