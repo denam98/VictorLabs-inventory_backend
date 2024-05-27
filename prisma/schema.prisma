@@ -166,7 +166,7 @@ model po {
   deliver_before    DateTime?
   contact_person    String?
   currency          String        @default("LKR")
-  state             String
+  state             String?
   is_active         Boolean       @default(true)
   discount_type     String
   discount          Decimal?
