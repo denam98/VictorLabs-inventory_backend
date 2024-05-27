@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,347 +7,282 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Basic auth related start --->
 model user {
-  user_id String @id @default(uuid())
-  password String
-  email String? @unique
-  username String @unique
-  fname String
-  lname String
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-  is_active Boolean @default(true)
-
-  role_id Int 
-
-  role role @relation(fields: [role_id], references: [role_id])
-  login sys_login[]
-  activity user_activity[]
+  user_id    String          @id @default(uuid())
+  password   String
+  email      String?         @unique
+  username   String          @unique
+  fname      String
+  lname      String
+  created_at DateTime        @default(now())
+  updated_at DateTime        @updatedAt
+  is_active  Boolean         @default(true)
+  role_id    Int
+  login      sys_login[]
+  role       role            @relation(fields: [role_id], references: [role_id])
+  activity   user_activity[]
 }
 
 model role {
-  role_id Int @id @default(autoincrement())
-  role_name String
+  role_id    Int      @id @default(autoincrement())
+  role_name  String
   created_at DateTime @default(now())
-  is_active Boolean @default(true)
-
-  users user[]
+  is_active  Boolean  @default(true)
+  users      user[]
 }
 
 model sys_login {
-  id Int @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   timestamp DateTime
-
-  user_id String
-
-  user user @relation(fields: [user_id], references: [user_id])
+  user_id   String
+  user      user     @relation(fields: [user_id], references: [user_id])
 }
-// Basic auth related end
 
-// Activity monitoring related start --->
 model activity_type {
-  id Int @id @default(autoincrement())
+  id            Int             @id @default(autoincrement())
   activity_name String
-
-  activity user_activity[]
+  activity      user_activity[]
 }
 
 model user_activity {
-  id Int @id @default(autoincrement())
-  timestamp DateTime
-  record_id String?
-
+  id          Int           @id @default(autoincrement())
+  timestamp   DateTime
   activity_id Int
-  user_id String
-
-  user user @relation(fields: [user_id], references: [user_id])
-  activity activity_type @relation(fields: [activity_id], references: [id])
+  user_id     String
+  record_id   String?
+  activity    activity_type @relation(fields: [activity_id], references: [id])
+  user        user          @relation(fields: [user_id], references: [user_id])
 }
-// Activity monitoring related end
 
-// Raw materials related start --->
 model rm_category {
-  id Int @id @default(autoincrement())
-  name String
-  is_active Boolean @default(true)
-
+  id           Int            @id @default(autoincrement())
+  name         String
+  is_active    Boolean        @default(true)
   raw_material raw_material[]
 }
 
 model uom {
-  id Int @id @default(autoincrement())
-  name String
-  is_active Boolean @default(true)
-
+  id           Int            @id @default(autoincrement())
+  name         String
+  is_active    Boolean        @default(true)
   raw_material raw_material[]
 }
 
 model raw_material {
-  id String @id @default(uuid())
-  name String
-  item_code String
-  description String?
+  id             String        @id @default(uuid())
+  name           String
+  item_code      String
+  is_active      Boolean       @default(true)
+  is_inventory   Boolean       @default(true)
+  created_at     DateTime      @default(now())
+  updated_at     DateTime      @updatedAt
+  uom_id         Int
+  description    String?
   re_order_level String?
-  re_order_qty Decimal?
-  is_active Boolean @default(true)
-  is_inventory Boolean @default(true)
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
+  re_order_qty   Decimal?
   rm_category_id Int
-  uom_id Int
-  supplier rm_supplier[]
-  prn_item prn_item[]
-  grn_item grn_item[]
-  srn_item srn_item[]
-  po_item po_item[]
-
-  rm_category rm_category @relation(fields: [rm_category_id], references: [id])
-  uom uom @relation(fields: [uom_id], references: [id])
+  grn_item       grn_item[]
+  po_item        po_item[]
+  prn_item       prn_item[]
+  rm_category    rm_category   @relation(fields: [rm_category_id], references: [id])
+  uom            uom           @relation(fields: [uom_id], references: [id])
+  supplier       rm_supplier[]
+  srn_item       srn_item[]
 }
 
-//--- Raw material and stock relationship not implemented (Can use purchase_order table instead)
-
-// Raw materials related end
-
-// Supplier related start --->
-
 model supplier {
-  id String @id @default(uuid())
-  name String
-  address String?
-  telephone String?
-  fax String?
-  br_number String?
-  vat_reg_no String?
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-  is_active Boolean @default(true)
-
-  contact supplier_contact[]
+  id           String             @id @default(uuid())
+  name         String
+  br_number    String?
+  created_at   DateTime           @default(now())
+  updated_at   DateTime           @updatedAt
+  is_active    Boolean            @default(true)
+  address      String?
+  fax          String?
+  telephone    String?
+  vat_reg_no   String?
+  po           po[]
   raw_material rm_supplier[]
-  po po[]
+  contact      supplier_contact[]
 }
 
 model supplier_contact {
-  id Int @id @default(autoincrement())
-  name String
-  email String?
-  mobile String?
-  telephone String?
-  is_active Boolean @default(true)
-
+  id          Int      @id @default(autoincrement())
+  telephone   String?
+  email       String?
+  mobile      String?
+  is_active   Boolean  @default(true)
   supplier_id String
-
-  supplier supplier @relation(fields: [supplier_id], references: [id])
+  name        String
+  supplier    supplier @relation(fields: [supplier_id], references: [id])
 }
 
 model rm_supplier {
-  id Int @id @default(autoincrement())
-  is_active Boolean @default(true)
-
-  rm_id String
-  supplier_id String
-
+  id           Int          @id @default(autoincrement())
+  rm_id        String
+  supplier_id  String
+  is_active    Boolean      @default(true)
   raw_material raw_material @relation(fields: [rm_id], references: [id])
-  supplier supplier @relation(fields: [supplier_id], references: [id])
+  supplier     supplier     @relation(fields: [supplier_id], references: [id])
 }
-// Supplier related end
 
-// Purchase request note related start --->
 model priority {
-  id Int @id @default(autoincrement())
+  id   Int    @id @default(autoincrement())
   name String
-
-  prn prn[]
+  prn  prn[]
 }
 
 model prn {
-  id String @id @default(uuid())
-  prn_no String
+  id           String     @id @default(uuid())
   requested_by String?
-  remark String?
-  approved_by String?
-  created_at DateTime @default(now())
-  is_active Boolean @default(true)
-
-  priority_id Int
-  prn_item prn_item[]
-
-  priority priority @relation(fields: [priority_id], references: [id])
+  remark       String?
+  approved_by  String?
+  created_at   DateTime   @default(now())
+  is_active    Boolean    @default(true)
+  priority_id  Int
+  prn_no       String
+  po_item      po_item[]
+  priority     priority   @relation(fields: [priority_id], references: [id])
+  prn_item     prn_item[]
 }
 
 model prn_item {
-  id String @id @default(uuid())
-  qty Decimal
-  ordered_qty Decimal @default(0)
+  id                       String        @id @default(uuid())
+  qty                      Decimal
+  ordered_qty              Decimal       @default(0)
   estimated_price_per_unit Decimal
-  is_active Boolean @default(true)
-
-  prn_id String
-  rm_id String
-  prn_item_po prn_item_po[]
-
-  prn prn @relation(fields: [prn_id], references: [id])
-  rm raw_material @relation(fields: [rm_id], references: [id])
+  is_active                Boolean       @default(true)
+  prn_id                   String
+  rm_id                    String
+  prn                      prn           @relation(fields: [prn_id], references: [id])
+  rm                       raw_material  @relation(fields: [rm_id], references: [id])
+  prn_item_po              prn_item_po[]
 }
-// Purchase request note related end
 
-// Purchase order related start --->
 model po {
-  id String @id @default(uuid())
-  po_no String @unique
-  special_note String?
+  id                String        @id @default(uuid())
+  special_note      String?
   delivery_location String
-  currency String @default("LKR")
-  state String
-  created_at DateTime @default(now())
-  is_active Boolean @default(true)
-
-  discount_type String
-  discount Decimal
-  prn_item_po prn_item_po[]
-
-  supplier_id String
-  po_item po_item[]
-  po_tax_type po_tax_type[]
-  grn grn?
-
-  supplier supplier @relation(fields: [supplier_id], references: [id])
+  currency          String        @default("LKR")
+  state             String
+  is_active         Boolean       @default(true)
+  discount_type     String
+  discount          Decimal
+  supplier_id       String
+  created_at        DateTime      @default(now())
+  po_no             String        @unique
+  grn               grn?
+  supplier          supplier      @relation(fields: [supplier_id], references: [id])
+  po_item           po_item[]
+  po_tax_type       po_tax_type[]
+  prn_item_po       prn_item_po[]
 }
 
 model po_item {
-  id String @id @default(uuid())
-  qty Decimal
+  id             String       @id @default(uuid())
+  qty            Decimal
   price_per_unit Decimal
-  is_active Boolean @default(true)
-  po_id String
-  rm_id String
-  prn_id String?
-
-  prn prn @relation(fields: [prn_id], references: [id])?
-  po po @relation(fields: [po_id], references: [id])
-  rm raw_material @relation(fields: [rm_id], references: [id])
+  is_active      Boolean      @default(true)
+  po_id          String
+  rm_id          String
+  prn_id         String?
+  po             po           @relation(fields: [po_id], references: [id])
+  prn            prn?         @relation(fields: [prn_id], references: [id])
+  rm             raw_material @relation(fields: [rm_id], references: [id])
 }
 
 model prn_item_po {
-  id String @id @default(uuid())
-  is_active Boolean @default(true)
-
+  id          String   @id @default(uuid())
+  is_active   Boolean  @default(true)
   prn_item_id String
-  po_id String
-
-  prn_item prn_item @relation(fields: [prn_item_id], references: [id])
-  po_item po @relation(fields: [po_id], references: [id])
+  po_id       String
+  po_item     po       @relation(fields: [po_id], references: [id])
+  prn_item    prn_item @relation(fields: [prn_item_id], references: [id])
 }
-// Purchase order related end
 
-// Goods recieve note related start --->
 model grn {
-  id String @id @default(uuid())
-  grn_no String @unique
-  comment String?
-  discount_type String?
-  discount Decimal?
+  id              String         @id @default(uuid())
+  grn_no          String         @unique
+  comment         String?
+  discount_type   String?
+  discount        Decimal?
   supplier_inv_no String
-  created_at DateTime @default(now())
-  is_active Boolean @default(true)
-
-  po_id String @unique
-
-  srn srn?
-  grn_item grn_item[]
-  grn_tax_type grn_tax_type[]
-
-  po po @relation(fields: [po_id], references: [id])
+  created_at      DateTime       @default(now())
+  is_active       Boolean        @default(true)
+  po_id           String         @unique
+  po              po             @relation(fields: [po_id], references: [id])
+  grn_item        grn_item[]
+  grn_tax_type    grn_tax_type[]
+  srn             srn?
 }
 
 model grn_item {
-  id String @id @default(uuid())
-  recieved_type String
-  qty Decimal
+  id             String       @id @default(uuid())
+  recieved_type  String
+  qty            Decimal
   price_per_unit Decimal
-  is_active Boolean @default(true)
-
-  grn_id String
-  rm_id String
-
-  grn grn @relation(fields: [grn_id], references: [id])
-  raw_material raw_material @relation(fields: [rm_id], references: [id])
+  is_active      Boolean      @default(true)
+  grn_id         String
+  rm_id          String
+  grn            grn          @relation(fields: [grn_id], references: [id])
+  raw_material   raw_material @relation(fields: [rm_id], references: [id])
 }
-// Goods recieve note related end
 
-// Supplier return note related start --->
 model srn {
-  id String @id @default(uuid())
-  srn_no String @unique
-  comment String?
-  created_at DateTime @default(now())
-  is_active Boolean @default(true)
-
-  grn_id String @unique
+  id           String         @id @default(uuid())
+  srn_no       String         @unique
+  comment      String?
+  created_at   DateTime       @default(now())
+  is_active    Boolean        @default(true)
+  grn_id       String         @unique
+  grn          grn            @relation(fields: [grn_id], references: [id])
+  srn_item     srn_item[]
   srn_tax_type srn_tax_type[]
-  srn_item srn_item[]
-
-  grn grn @relation(fields: [grn_id], references: [id])
 }
 
 model srn_item {
-  id String @id @default(uuid())
-  qty Decimal
-  reason String?
-  discount Decimal @default(0)
-  returned_by String
-  is_active Boolean @default(true)
-
-  srn_id String
-  rm_id String
-
-  srn srn @relation(fields: [srn_id], references: [id])
+  id           String       @id @default(uuid())
+  qty          Decimal
+  reason       String?
+  discount     Decimal      @default(0)
+  returned_by  String
+  is_active    Boolean      @default(true)
+  srn_id       String
+  rm_id        String
   raw_material raw_material @relation(fields: [rm_id], references: [id])
+  srn          srn          @relation(fields: [srn_id], references: [id])
 }
-// Supplier return note related end
 
-// Tax type related start --->
 model tax_type {
-  id Int @id @default(autoincrement())
-  name String
-  value Decimal
-  is_active Boolean @default(true)
-
-  po_tax_type po_tax_type[]
-  srn_tax_type srn_tax_type[]
+  id           Int            @id @default(autoincrement())
+  name         String
+  value        Decimal
+  is_active    Boolean        @default(true)
   grn_tax_type grn_tax_type[]
+  po_tax_type  po_tax_type[]
+  srn_tax_type srn_tax_type[]
 }
 
 model po_tax_type {
-  id Int @id @default(autoincrement())
-
-  po_id String
+  id          Int      @id @default(autoincrement())
+  po_id       String
   tax_type_id Int
-
-  po po @relation(fields: [po_id], references: [id])
-  tax_type tax_type @relation(fields: [tax_type_id], references: [id])
+  po          po       @relation(fields: [po_id], references: [id])
+  tax_type    tax_type @relation(fields: [tax_type_id], references: [id])
 }
 
 model srn_tax_type {
-  id Int @id @default(autoincrement())
-
-  srn_id String
+  id          Int      @id @default(autoincrement())
+  srn_id      String
   tax_type_id Int
-
-  srn srn @relation(fields: [srn_id], references: [id])
-  tax_type tax_type @relation(fields: [tax_type_id], references: [id])
+  srn         srn      @relation(fields: [srn_id], references: [id])
+  tax_type    tax_type @relation(fields: [tax_type_id], references: [id])
 }
 
 model grn_tax_type {
-  id Int @id @default(autoincrement())
-
-  grn_id String
+  id          Int      @id @default(autoincrement())
+  grn_id      String
   tax_type_id Int
-
-  grn grn @relation(fields: [grn_id], references: [id])
-  tax_type tax_type @relation(fields: [tax_type_id], references: [id])
+  grn         grn      @relation(fields: [grn_id], references: [id])
+  tax_type    tax_type @relation(fields: [tax_type_id], references: [id])
 }
-// Tax type related end
