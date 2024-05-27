@@ -141,7 +141,6 @@ model prn {
   is_active    Boolean    @default(true)
   priority_id  Int
   prn_no       String
-  po_item      po_item[]
   priority     priority   @relation(fields: [priority_id], references: [id])
   prn_item     prn_item[]
 }
@@ -157,20 +156,23 @@ model prn_item {
   prn                      prn           @relation(fields: [prn_id], references: [id])
   rm                       raw_material  @relation(fields: [rm_id], references: [id])
   prn_item_po              prn_item_po[]
+  po_item                  po_item[]
 }
 
 model po {
   id                String        @id @default(uuid())
   special_note      String?
   delivery_location String
+  deliver_before    DateTime?
+  contact_person    String?
   currency          String        @default("LKR")
   state             String
   is_active         Boolean       @default(true)
   discount_type     String
-  discount          Decimal
+  discount          Decimal?
   supplier_id       String
   created_at        DateTime      @default(now())
-  po_no             String        @unique
+  po_no             String?        @unique
   grn               grn?
   supplier          supplier      @relation(fields: [supplier_id], references: [id])
   po_item           po_item[]
@@ -185,9 +187,9 @@ model po_item {
   is_active      Boolean      @default(true)
   po_id          String
   rm_id          String
-  prn_id         String?
+  prn_item_id    String?
   po             po           @relation(fields: [po_id], references: [id])
-  prn            prn?         @relation(fields: [prn_id], references: [id])
+  prn_item       prn_item?    @relation(fields: [prn_item_id], references: [id])
   rm             raw_material @relation(fields: [rm_id], references: [id])
 }
 
