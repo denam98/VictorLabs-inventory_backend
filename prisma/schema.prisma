@@ -232,6 +232,7 @@ model po_item {
   rm_id String
   prn_id String?
 
+  prn prn @relation(fields: [prn_id], references: [id])
   po po @relation(fields: [po_id], references: [id])
   rm raw_material @relation(fields: [rm_id], references: [id])
 }
