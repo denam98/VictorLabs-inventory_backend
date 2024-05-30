@@ -1,6 +1,6 @@
 import { RequestService } from 'src/config/app/request.service';
 import { ErrorService } from 'src/config/error/error.service';
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { po, po_item } from '@prisma/client';
 import { CreatePoDTO, PoItemDTO } from 'src/common/dtos/dto';
 import { PostgresConfigService } from 'src/config/database/postgres/config.service';
@@ -8,6 +8,8 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { AppConfigService } from 'src/config/app/app-config.service';
 import { SystemActivity } from 'src/common/util/system-activity.enum';
 import lodash from 'lodash';
+import CreateNewPoDto from '../../common/dtos/createNewPo.dto';
+import NewPoItemDto from '../../common/dtos/new-po-item.dto';
 
 @Injectable()
 export class PoService {
@@ -346,6 +348,84 @@ export class PoService {
         error,
         PoService.name,
       );
+    }
+  }
+
+  async createNewPo(createNewPoDto: CreateNewPoDto) {
+    try {
+      const newItems: NewPoItemDto[] = createNewPoDto.items;
+      let resTaxPromise;
+      const res = await this.postgreService.po.create({
+        data: {
+          supplier_id: createNewPoDto.supplier_id,
+          special_note: createNewPoDto.special_note,
+          delivery_location: createNewPoDto.delivery_location,
+          currency: 'LKR',
+          discount_type: createNewPoDto.discount_type,
+          discount: createNewPoDto.discount,
+          deliver_before: createNewPoDto.deliver_before,
+          contact_person: createNewPoDto.contact_person,
+        },
+      });
+
+      if (!res) {
+        throw new InternalServerErrorException('Cannot Create the PO');
+      }
+
+      if (newItems.length > 0) {
+        const itemPromises = newItems.map((item) => {
+          console.log('inside itemPromise ==> ', {
+            po_id: res.id,
+            rm_id: item.rm_id,
+            qty: item.qty,
+            price_per_unit: item.price_per_unit,
+            prn_item_id: item.prn_item_id,
+          });
+          return new Promise(async (resolve, reject) => {
+            const resCreatePoItem = await this.postgreService.po_item.create({
+              data: {
+                po_id: res.id,
+                rm_id: item.rm_id,
+                qty: item.qty,
+                price_per_unit: item.price_per_unit,
+                prn_item_id: item.prn_item_id,
+              },
+            });
+
+            if (resCreatePoItem) {
+              resolve(resCreatePoItem);
+            } else {
+              reject(resCreatePoItem);
+            }
+          });
+        });
+
+        if (createNewPoDto.tax_type.length > 0) {
+          resTaxPromise = createNewPoDto.tax_type.map(async (tax) => {
+            return await new Promise(async (resolve, reject) => {
+              const resTaxType = await this.postgreService.po_tax_type.create({
+                data: { po_id: res.id, tax_type_id: tax },
+              });
+              if (resTaxType) {
+                resolve(resTaxType);
+              } else {
+                reject(resTaxType);
+              }
+            });
+          });
+        }
+
+        const finalRes = await Promise.all(itemPromises);
+        const taxRes = await Promise.all(resTaxPromise);
+
+        if (finalRes) {
+          return { ...res, items: finalRes, tax_type: taxRes };
+        } else {
+          throw new Error('Unknown Exception');
+        }
+      }
+    } catch (e) {
+      return Promise.reject(e);
     }
   }
 }
