@@ -350,4 +350,12 @@ export class PrnService {
       );
     }
   }
+
+  async getPrnItemById(prnItemId: string) {
+    return this.postgreService.prn_item.findFirst({
+      where: {
+        id: prnItemId,
+      },
+    });
+  }
 }
