@@ -172,7 +172,7 @@ model po {
   discount          Decimal?
   supplier_id       String
   created_at        DateTime      @default(now())
-  po_no             String?        @unique
+  po_no             String?       @unique
   grn               grn?
   supplier          supplier      @relation(fields: [supplier_id], references: [id])
   po_item           po_item[]
