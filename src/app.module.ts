@@ -26,6 +26,7 @@ import { PoModule } from './models/po/po.module';
 import { SrnModule } from './models/srn/srn.module';
 import { TaxModule } from './models/tax/tax.module';
 import { GrnModule } from './models/grn/grn.module';
+import { CustomerModule } from './models/customer/customer.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { GrnModule } from './models/grn/grn.module';
     TaxModule,
     PoModule,
     GrnModule,
+    CustomerModule,
     PostgresConfigModule,
     ErrorModule,
     MailerModule.forRoot({

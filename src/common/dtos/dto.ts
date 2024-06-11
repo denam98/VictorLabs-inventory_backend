@@ -14,3 +14,5 @@ export * from './create-po.dto';
 export * from './create-grn.dto';
 export * from './create-srn.dto';
 export * from './tax-type.dto';
+export * from './add-customer-contact.dto';
+export * from './add-customer.dto';
