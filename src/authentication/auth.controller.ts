@@ -24,6 +24,11 @@ export class AuthController {
     return await this.authService.validateUser(loginDto);
   }
 
+  @Get('validate-token')
+  async validate() {
+    return { valid: true };
+  }
+
   @Post('register')
   async register(@Body() registerUserDto: RegisterUserDTO) {
     return await this.authService.register(registerUserDto);
