@@ -1,4 +1,10 @@
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class RMIssueDTO {
   @IsNotEmpty()
@@ -8,4 +14,8 @@ export class RMIssueDTO {
   @IsNotEmpty()
   @IsNumber()
   issue_note_no;
+
+  @IsOptional()
+  @IsBoolean()
+  is_active;
 }

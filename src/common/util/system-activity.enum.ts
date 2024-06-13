@@ -32,6 +32,10 @@ export enum SystemActivity {
   'update_batch' = 30,
   'delete_batch' = 31,
   'update_batch_item' = 32,
+  'create_RM_issue' = 33,
+  'update_RM_issue' = 34,
+  'delete_RM_issue' = 35,
+  'update_RM_issue_item' = 36,
 }
 
 export enum SystemActivityMsg {
@@ -68,4 +72,8 @@ export enum SystemActivityMsg {
   'Batch updated',
   'Batch deleted',
   'Batch item updated',
+  'RM issue created',
+  'RM issue updated',
+  'RM issue deleted',
+  'RM issue item updated',
 }

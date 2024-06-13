@@ -316,6 +316,7 @@ model rm_issue {
   id String @id @default(uuid())
   batch_id String @unique
   issue_note_no Int
+  is_active    Boolean      @default(true)
 
   batch batch @relation(fields: [batch_id], references: [id])
   rm_issue_item rm_issue_item[]

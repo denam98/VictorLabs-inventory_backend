@@ -10,7 +10,7 @@ import {
 import { BatchService } from './batch.service';
 import { BatchDTO, BatchItemDTO } from 'src/common/dtos/dto';
 
-@Controller('api/v1/supplier')
+@Controller('api/v1/batch')
 export class BatchController {
   constructor(private batchService: BatchService) {}
 
