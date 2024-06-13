@@ -26,6 +26,7 @@ import { PoModule } from './models/po/po.module';
 import { SrnModule } from './models/srn/srn.module';
 import { TaxModule } from './models/tax/tax.module';
 import { GrnModule } from './models/grn/grn.module';
+import { CustomerModule } from './models/customer/customer.module';
 import { BatchModule } from './models/batch/batch.module';
 import { RMIssueModule } from './models/rm-issue/rm-issue.module';
 
@@ -42,6 +43,7 @@ import { RMIssueModule } from './models/rm-issue/rm-issue.module';
     TaxModule,
     PoModule,
     GrnModule,
+    CustomerModule,
     BatchModule,
     RMIssueModule,
     PostgresConfigModule,

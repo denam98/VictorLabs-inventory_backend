@@ -291,6 +291,38 @@ model grn_tax_type {
   tax_type    tax_type @relation(fields: [tax_type_id], references: [id])
 }
 
+model customer {
+  id String @id @default(uuid())
+  name String
+  type String
+  code String
+  vat Decimal
+  website String
+  telephone String
+  email String
+  address String
+  credit_amount Decimal
+  credit_period Int
+  is_credit_allowed Boolean
+  is_discount_allowed Boolean
+  max_discount_percentage Decimal
+  max_discount_value Decimal
+  is_active Boolean @default(true)
+
+  customer_contact customer_contact[]
+}
+
+model customer_contact {
+  id Int @id @default(autoincrement())
+  telephone String
+  mobile String
+  email String
+  is_active Boolean @default(true)
+
+  customer_id String
+  customer customer @relation(fields: [customer_id], references: [id])
+}
+
 model batch {
   id String @id @default(uuid())
   name String
