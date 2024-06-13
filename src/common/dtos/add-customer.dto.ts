@@ -13,7 +13,7 @@ export class AddCustomerDTO {
   @IsNotEmpty()
   name;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
   type;
 
@@ -21,7 +21,7 @@ export class AddCustomerDTO {
   @IsString()
   code;
 
-  @IsNotEmpty()
+  @IsOptional()
   @Transform(({ value }) => {
     return String(value);
   })
@@ -44,7 +44,7 @@ export class AddCustomerDTO {
   @IsString()
   address;
 
-  @IsNotEmpty()
+  @IsOptional()
   @Transform(({ value }) => {
     return String(value);
   })
@@ -63,14 +63,14 @@ export class AddCustomerDTO {
   @IsBoolean()
   is_discount_allowed;
 
-  @IsNotEmpty()
+  @IsOptional()
   @Transform(({ value }) => {
     return String(value);
   })
   @IsDecimal()
   max_discount_percentage;
 
-  @IsNotEmpty()
+  @IsOptional()
   @Transform(({ value }) => {
     return String(value);
   })

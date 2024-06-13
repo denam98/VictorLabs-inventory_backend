@@ -6,8 +6,7 @@ import { PostgresConfigService } from 'src/config/database/postgres/config.servi
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { AppConfigService } from 'src/config/app/app-config.service';
 import { SystemActivity } from 'src/common/util/system-activity.enum';
-import { AddCustomerContactDTO } from 'src/common/dtos/add-customer-contact.dto';
-import { AddCustomerDTO } from 'src/common/dtos/add-customer.dto';
+import { AddCustomerContactDTO, AddCustomerDTO } from 'src/common/dtos/dto';
 
 @Injectable()
 export class CustomerService {
