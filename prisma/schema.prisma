@@ -88,6 +88,8 @@ model raw_material {
   uom            uom           @relation(fields: [uom_id], references: [id])
   supplier       rm_supplier[]
   srn_item       srn_item[]
+  batch_item     batch_item?
+  rm_issue_item  rm_issue_item?
 }
 
 model supplier {
@@ -287,4 +289,46 @@ model grn_tax_type {
   tax_type_id Int
   grn         grn      @relation(fields: [grn_id], references: [id])
   tax_type    tax_type @relation(fields: [tax_type_id], references: [id])
+}
+
+model batch {
+  id String @id @default(uuid())
+  name String
+  start_date DateTime
+  end_date DateTime
+  is_complete Boolean
+  batch_item batch_item[]
+  rm_issue rm_issue?
+}
+
+model batch_item {
+  id Int @id @default(autoincrement())
+  batch_id String
+  rm_id String @unique
+  qty Decimal
+  is_active    Boolean      @default(true)
+
+  raw_material raw_material @relation(fields: [rm_id], references: [id])
+  batch batch @relation(fields: [batch_id], references: [id])
+}
+
+model rm_issue {
+  id String @id @default(uuid())
+  batch_id String @unique
+  issue_note_no Int
+
+  batch batch @relation(fields: [batch_id], references: [id])
+  rm_issue_item rm_issue_item[]
+}
+
+model rm_issue_item {
+  id Int @id @default(autoincrement())
+  rm_issue_id String
+  rm_id String @unique
+  qty Decimal
+  issue_to String
+  is_active    Boolean      @default(true)
+
+  raw_material raw_material @relation(fields: [rm_id], references: [id])
+  rm_issue rm_issue @relation(fields: [rm_issue_id], references: [id])
 }
