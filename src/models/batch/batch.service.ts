@@ -144,7 +144,7 @@ export class BatchService {
       });
 
       await this.commonService.recordSystemActivity(
-        SystemActivity.add_supplier,
+        SystemActivity.create_batch,
         this.currUser,
         batch.id,
       );
@@ -196,7 +196,7 @@ export class BatchService {
       });
 
       await this.commonService.recordSystemActivity(
-        SystemActivity.delete_supplier,
+        SystemActivity.delete_batch,
         this.currUser,
         batch.id,
       );
@@ -236,7 +236,7 @@ export class BatchService {
         data,
       });
       await this.commonService.recordSystemActivity(
-        SystemActivity.update_supplier,
+        SystemActivity.update_batch,
         this.currUser,
         batch.id,
       );
@@ -287,7 +287,7 @@ export class BatchService {
         },
       );
       await this.commonService.recordSystemActivity(
-        SystemActivity.update_supplier,
+        SystemActivity.update_batch_item,
         this.currUser,
         batchId,
       );

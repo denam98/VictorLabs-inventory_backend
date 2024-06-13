@@ -24,6 +24,14 @@ export enum SystemActivity {
   'create_tax_type' = 22,
   'update_tax_type' = 23,
   'delete_tax_type' = 24,
+  'create_customer' = 25,
+  'update_customer' = 26,
+  'delete_customer' = 27,
+  'update_customer_contact' = 28,
+  'create_batch' = 29,
+  'update_batch' = 30,
+  'delete_batch' = 31,
+  'update_batch_item' = 32,
 }
 
 export enum SystemActivityMsg {
@@ -52,4 +60,12 @@ export enum SystemActivityMsg {
   'Tax Type created',
   'Tax Type updated',
   'Tax Type deleted',
+  'Customer created',
+  'Customer updated',
+  'Customer deleted',
+  'Customer contact updated',
+  'Batch created',
+  'Batch updated',
+  'Batch deleted',
+  'Batch item updated',
 }
