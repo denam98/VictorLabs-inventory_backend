@@ -1,7 +1,7 @@
 import { RequestService } from 'src/config/app/request.service';
 import { ErrorService } from 'src/config/error/error.service';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { po, po_item } from '@prisma/client';
+import { po, po_item, po_tax_type } from '@prisma/client';
 import { CreatePoDTO, PoItemDTO } from 'src/common/dtos/dto';
 import { PostgresConfigService } from 'src/config/database/postgres/config.service';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
@@ -139,19 +139,38 @@ export class PoService {
   async createPo(createPoDto: CreatePoDTO): Promise<po> {
     try {
       const poItems: PoItemDTO[] = createPoDto.items;
+      const taxTypes: number[] = createPoDto.tax_type;
       delete createPoDto.items;
+      delete createPoDto.tax_type;
 
       const po: po = await this.postgreService.po.create({
         data: createPoDto,
       });
 
       // Insert tax related data into po_tax_type table
-      await createPoDto.tax_type.array.forEach((element) => {
-        element['po_id'] = po.id;
-        this.postgreService.po_tax_type.create({
-          data: element,
+      const poTaxCreationPromises: Promise<po_tax_type>[] = taxTypes.map(
+        (element) => {
+          const obj = {
+            po_id: po.id,
+            tax_type_id: element,
+          };
+
+          return this.postgreService.po_tax_type.create({
+            data: obj,
+          });
+        },
+      );
+      await Promise.all(poTaxCreationPromises)
+        .then((rslt) => {
+          po['tax_type'] = rslt;
+        })
+        .catch((error) => {
+          throw this.errorService.newError(
+            this.errorService.ErrConfig.E0019,
+            error,
+            PoService.name,
+          );
         });
-      });
 
       // Inserting data into prn_item_po table and prn_item table qty
       const prnItemPoCreationPromises = poItems.map((item: PoItemDTO) => {
