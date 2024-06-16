@@ -32,7 +32,7 @@
     "E007": {
         "code": "E007",
         "STATUS": "422",
-        "DESCRIPTION": "Uuid is already exist"
+        "DESCRIPTION": "Record already exist"
     },
     "E008": {
         "code": "E008",
