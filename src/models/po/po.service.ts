@@ -221,7 +221,7 @@ export class PoService {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
           throw this.errorService.newError(
-            this.errorService.ErrConfig.E006,
+            this.errorService.ErrConfig.E007,
             error,
             PoService.name,
           );

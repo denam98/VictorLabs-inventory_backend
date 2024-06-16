@@ -90,6 +90,7 @@ model raw_material {
   srn_item       srn_item[]
   batch_item     batch_item?
   rm_issue_item  rm_issue_item?
+  product_costing_item product_costing_item[]
 }
 
 model supplier {
@@ -364,4 +365,59 @@ model rm_issue_item {
 
   raw_material raw_material @relation(fields: [rm_id], references: [id])
   rm_issue rm_issue @relation(fields: [rm_issue_id], references: [id])
+}
+
+model product_category {
+  id Int @id @default(autoincrement())
+  name String
+  code String
+  is_active Boolean @default(true)
+  product_sub_category product_sub_category[]
+}
+
+model product_sub_category {
+  id Int @id @default(autoincrement())
+  category_id Int
+  name String
+  code String
+  is_active Boolean @default(true)
+  product_category product_category @relation(fields: [category_id], references: [id])
+  product product?
+}
+
+model product_costing_item {
+  id Int @id @default(autoincrement())
+  rm_id String
+  qty Decimal
+  raw_material raw_material @relation(fields: [rm_id], references: [id])
+}
+
+model product {
+  id String @id @default(uuid())
+  product_sub_category_id Int @unique
+  name String
+  code String
+  description String
+  uom_id Int
+  is_customized Boolean @default(true)
+  is_active Boolean @default(true)
+  product_price_id Int @unique
+  product_sub_category product_sub_category @relation(fields: [product_sub_category_id], references: [id])
+  product_price product_price @relation(fields: [product_price_id], references: [id])
+}
+
+model product_price {
+  id Int @id @default(autoincrement())
+  product product?
+  price Decimal
+  reason_id Int @unique
+  is_active Boolean @default(true)
+  price_change_reason price_change_reason @relation(fields: [reason_id], references: [id])
+}
+
+model price_change_reason {
+  id Int @id @default(autoincrement())
+  reason_name String
+  is_active Boolean @default(true)
+  product_price product_price?
 }

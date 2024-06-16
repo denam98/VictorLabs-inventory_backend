@@ -136,17 +136,23 @@ export class GrnService {
   async createGrn(createGrnDto: CreateGrnDTO): Promise<grn> {
     try {
       const grnItems: GrnItemDTO[] = createGrnDto.items;
+      const taxTypes: number[] = createGrnDto.tax_type;
       delete createGrnDto.items;
+      delete createGrnDto.tax_type;
 
       const grn: grn = await this.postgreService.grn.create({
         data: createGrnDto,
       });
 
       // Insert tax related data into grn_tax_type table
-      await createGrnDto.tax_type.array.forEach((element) => {
-        element['grn_id'] = grn.id;
+      await taxTypes.forEach((element) => {
+        const obj = {
+          grn_id: grn.id,
+          tax_type_id: element,
+        };
+
         this.postgreService.grn_tax_type.create({
-          data: element,
+          data: obj,
         });
       });
 
@@ -181,7 +187,7 @@ export class GrnService {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
           throw this.errorService.newError(
-            this.errorService.ErrConfig.E006,
+            this.errorService.ErrConfig.E007,
             error,
             GrnService.name,
           );
