@@ -1,7 +1,7 @@
 import { RequestService } from 'src/config/app/request.service';
 import { ErrorService } from 'src/config/error/error.service';
 import { Injectable } from '@nestjs/common';
-import { grn, grn_item } from '@prisma/client';
+import { grn, grn_item, grn_tax_type } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { AppConfigService } from 'src/config/app/app-config.service';
 import { SystemActivity } from 'src/common/util/system-activity.enum';
@@ -145,16 +145,29 @@ export class GrnService {
       });
 
       // Insert tax related data into grn_tax_type table
-      await taxTypes.forEach((element) => {
-        const obj = {
-          grn_id: grn.id,
-          tax_type_id: element,
-        };
+      const grnTaxCreationPromises: Promise<grn_tax_type>[] = taxTypes.map(
+        (element) => {
+          const obj = {
+            grn_id: grn.id,
+            tax_type_id: element,
+          };
 
-        this.postgreService.grn_tax_type.create({
-          data: obj,
+          return this.postgreService.grn_tax_type.create({
+            data: obj,
+          });
+        },
+      );
+      await Promise.all(grnTaxCreationPromises)
+        .then((rslt) => {
+          grn['tax_type'] = rslt;
+        })
+        .catch((error) => {
+          throw this.errorService.newError(
+            this.errorService.ErrConfig.E0019,
+            error,
+            GrnService.name,
+          );
         });
-      });
 
       // Inserting data into grn_item table
       const grnItemCreationPromises: Promise<grn_item>[] = grnItems.map(

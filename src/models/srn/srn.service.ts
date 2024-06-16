@@ -1,7 +1,7 @@
 import { RequestService } from 'src/config/app/request.service';
 import { ErrorService } from 'src/config/error/error.service';
 import { Injectable } from '@nestjs/common';
-import { srn, srn_item } from '@prisma/client';
+import { srn, srn_item, srn_tax_type } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { AppConfigService } from 'src/config/app/app-config.service';
 import { SystemActivity } from 'src/common/util/system-activity.enum';
@@ -133,19 +133,38 @@ export class SrnService {
   async createSrn(createSrnDto: CreateSrnDTO): Promise<srn> {
     try {
       const srnItems: SrnItemDTO[] = createSrnDto.items;
+      const taxTypes: number[] = createSrnDto.tax_type;
       delete createSrnDto.items;
+      delete createSrnDto.tax_type;
 
       const srn: srn = await this.postgreService.srn.create({
         data: createSrnDto,
       });
 
       // Insert tax related data into srn_tax_type table
-      await createSrnDto.tax_type.array.forEach((element) => {
-        element['srn_id'] = srn.id;
-        this.postgreService.srn_tax_type.create({
-          data: element,
+      const srnTaxCreationPromises: Promise<srn_tax_type>[] = taxTypes.map(
+        (element) => {
+          const obj = {
+            srn_id: srn.id,
+            tax_type_id: element,
+          };
+
+          return this.postgreService.srn_tax_type.create({
+            data: obj,
+          });
+        },
+      );
+      await Promise.all(srnTaxCreationPromises)
+        .then((rslt) => {
+          srn['tax_type'] = rslt;
+        })
+        .catch((error) => {
+          throw this.errorService.newError(
+            this.errorService.ErrConfig.E0019,
+            error,
+            SrnService.name,
+          );
         });
-      });
 
       // Inserting data into srn_item table
       const srnItemCreationPromises: Promise<srn_item>[] = srnItems.map(
