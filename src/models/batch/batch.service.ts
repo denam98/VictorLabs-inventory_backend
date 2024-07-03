@@ -61,9 +61,6 @@ export class BatchService {
   async getAllBatches(): Promise<batch[]> {
     try {
       const batch: batch[] = await this.postgreService.batch.findMany({
-        where: {
-          is_complete: true,
-        },
         include: {
           batch_item: {
             where: { is_active: true },
