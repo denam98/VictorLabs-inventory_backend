@@ -1,15 +1,15 @@
 import { RequestService } from 'src/config/app/request.service';
 import { ErrorService } from 'src/config/error/error.service';
 import { Injectable } from '@nestjs/common';
-import { supplier, supplier_contact } from '@prisma/client';
-import { AddSupplierContactDTO, AddSupplierDTO } from 'src/common/dtos/dto';
+import { customer, customer_contact } from '@prisma/client';
 import { PostgresConfigService } from 'src/config/database/postgres/config.service';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { AppConfigService } from 'src/config/app/app-config.service';
 import { SystemActivity } from 'src/common/util/system-activity.enum';
+import { AddCustomerContactDTO, AddCustomerDTO } from 'src/common/dtos/dto';
 
 @Injectable()
-export class SupplierService {
+export class CustomerService {
   currUser: string;
 
   constructor(
@@ -21,14 +21,14 @@ export class SupplierService {
     this.currUser = this.requestService.getUserId();
     this.errorService.printLog(
       'info',
-      SupplierService.name,
+      CustomerService.name,
       'current user ===> ' + this.currUser,
     );
   }
 
-  async findSupplierByName(name: string): Promise<supplier[]> {
+  async findCustomerByName(name: string): Promise<customer[]> {
     try {
-      return await this.postgreService.supplier.findMany({
+      return await this.postgreService.customer.findMany({
         where: {
           name: name,
           is_active: true,
@@ -40,149 +40,145 @@ export class SupplierService {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E001,
             error,
-            SupplierService.name,
+            CustomerService.name,
           );
         } else {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0016,
             error,
-            SupplierService.name,
+            CustomerService.name,
           );
         }
       }
       throw this.errorService.newError(
         this.errorService.ErrConfig.E0010,
         error,
-        SupplierService.name,
+        CustomerService.name,
       );
     }
   }
 
-  async getAllSuppliers(): Promise<supplier[]> {
+  async getAllCustomers(): Promise<customer[]> {
     try {
-      const supplier: supplier[] = await this.postgreService.supplier.findMany({
+      const customer: customer[] = await this.postgreService.customer.findMany({
         where: {
           is_active: true,
         },
         include: {
-          contact: {
-            where: { is_active: true },
-          },
-          raw_material: {
+          customer_contact: {
             where: { is_active: true },
           },
         },
       });
-      return supplier;
+      return customer;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         throw this.errorService.newError(
           this.errorService.ErrConfig.E0016,
           error,
-          SupplierService.name,
+          CustomerService.name,
         );
       }
       throw this.errorService.newError(
         this.errorService.ErrConfig.E0010,
         error,
-        SupplierService.name,
+        CustomerService.name,
       );
     }
   }
 
-  async getSupplierById(supplierId: string): Promise<supplier> {
+  async getCustomerById(customerId: string): Promise<customer> {
     try {
-      const supplier: supplier =
-        await this.postgreService.supplier.findFirstOrThrow({
+      const customer: customer =
+        await this.postgreService.customer.findFirstOrThrow({
           where: {
-            id: supplierId,
+            id: customerId,
             is_active: true,
           },
           include: {
-            contact: {
-              where: { is_active: true },
-            },
-            raw_material: {
+            customer_contact: {
               where: { is_active: true },
             },
           },
         });
-      return supplier;
+      return customer;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0012,
             error,
-            SupplierService.name,
+            CustomerService.name,
           );
         } else {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0016,
             error,
-            SupplierService.name,
+            CustomerService.name,
           );
         }
       }
       throw this.errorService.newError(
         this.errorService.ErrConfig.E0010,
         error,
-        SupplierService.name,
+        CustomerService.name,
       );
     }
   }
 
-  async addSupplier(data: {
-    addSupplierDto: AddSupplierDTO;
-    supplierContacts: AddSupplierContactDTO[];
-  }): Promise<supplier> {
+  async addCustomer(data: {
+    addCustomerDto: AddCustomerDTO;
+    customerContacts: AddCustomerContactDTO[];
+  }): Promise<customer> {
     try {
-      const supplier: supplier = await this.postgreService.supplier.create({
-        data: data.addSupplierDto,
+      const customer: customer = await this.postgreService.customer.create({
+        data: data.addCustomerDto,
       });
 
-      await this.postgreService.supplier_contact.createMany({
-        data: data.supplierContacts.map((contact: AddSupplierContactDTO) => {
-          contact.supplier_id = supplier.id;
-          return contact;
-        }),
+      await this.postgreService.customer_contact.createMany({
+        data: data.customerContacts.map(
+          (customer_contact: AddCustomerContactDTO) => {
+            customer_contact.customer_id = customer.id;
+            return customer_contact;
+          },
+        ),
       });
 
       await this.commonService.recordSystemActivity(
-        SystemActivity.add_supplier,
+        SystemActivity.create_customer,
         this.currUser,
-        supplier.id,
+        customer.id,
       );
-      return supplier;
+      return customer;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E007,
             error,
-            SupplierService.name,
+            CustomerService.name,
           );
         } else {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0019,
             error,
-            SupplierService.name,
+            CustomerService.name,
           );
         }
       }
       throw this.errorService.newError(
         this.errorService.ErrConfig.E0010,
         error,
-        SupplierService.name,
+        CustomerService.name,
       );
     }
   }
 
-  async deleteSupplier(supplierId: string): Promise<supplier> {
+  async deleteCustomer(customerId: string): Promise<customer> {
     try {
-      const supplier: supplier = await this.postgreService.supplier.update({
+      const customer: customer = await this.postgreService.customer.update({
         where: {
-          id: supplierId,
+          id: customerId,
           is_active: true,
         },
         data: {
@@ -190,9 +186,9 @@ export class SupplierService {
         },
       });
 
-      await this.postgreService.supplier_contact.updateMany({
+      await this.postgreService.customer_contact.updateMany({
         where: {
-          supplier_id: supplier.id,
+          customer_id: customer.id,
           is_active: true,
         },
         data: {
@@ -201,100 +197,101 @@ export class SupplierService {
       });
 
       await this.commonService.recordSystemActivity(
-        SystemActivity.delete_supplier,
+        SystemActivity.delete_customer,
         this.currUser,
-        supplier.id,
+        customer.id,
       );
-      return supplier;
+      return customer;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0012,
             error,
-            SupplierService.name,
+            CustomerService.name,
           );
         } else {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0018,
             error,
-            SupplierService.name,
+            CustomerService.name,
           );
         }
       }
       throw this.errorService.newError(
         this.errorService.ErrConfig.E0010,
         error,
-        SupplierService.name,
+        CustomerService.name,
       );
     }
   }
 
-  async updateSupplier(params: {
+  async updateCustomer(params: {
     where: { id: string; is_active: boolean };
-    data: AddSupplierDTO;
-  }): Promise<supplier> {
+    data: AddCustomerDTO;
+  }): Promise<customer> {
     try {
       const { where, data } = params;
-      const supplier: supplier = await this.postgreService.supplier.update({
+      const customer: customer = await this.postgreService.customer.update({
         where,
         data,
       });
       await this.commonService.recordSystemActivity(
-        SystemActivity.update_supplier,
+        SystemActivity.update_customer,
         this.currUser,
-        supplier.id,
+        customer.id,
       );
-      return supplier;
+      return customer;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0012,
             error,
-            SupplierService.name,
+            CustomerService.name,
           );
         } else {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0019,
             error,
-            SupplierService.name,
+            CustomerService.name,
           );
         }
       }
       throw this.errorService.newError(
         this.errorService.ErrConfig.E0010,
         error,
-        SupplierService.name,
+        CustomerService.name,
       );
     }
   }
 
   async updateContactDetails(
-    contacts: AddSupplierContactDTO[],
-    supplierId: string,
-  ): Promise<supplier_contact[]> {
+    customer_contacts: AddCustomerContactDTO[],
+    customerId: string,
+  ): Promise<customer_contact[]> {
     try {
-      const updatedContacts: Promise<supplier_contact>[] = await contacts.map(
-        async (contact: AddSupplierContactDTO) => {
-          const id = contact.id ? contact.id : -1;
-          contact.id ? delete contact.id : null;
-          console.log(contact);
-          return await this.postgreService.supplier_contact.upsert({
-            where: {
-              id: id,
-              supplier_id: supplierId,
-              is_active: true,
-            },
-            update: contact,
-            create: contact,
-          });
-        },
-      );
+      const updatedContacts: Promise<customer_contact>[] =
+        await customer_contacts.map(
+          async (customer_contact: AddCustomerContactDTO) => {
+            const id = customer_contact.id ? customer_contact.id : -1;
+            customer_contact.id ? delete customer_contact.id : null;
+            console.log(customer_contact);
+            return await this.postgreService.customer_contact.upsert({
+              where: {
+                id: id,
+                customer_id: customerId,
+                is_active: true,
+              },
+              update: customer_contact,
+              create: customer_contact,
+            });
+          },
+        );
       await this.commonService.recordSystemActivity(
-        SystemActivity.update_supplier,
+        SystemActivity.update_customer,
         this.currUser,
-        supplierId,
+        customerId,
       );
       return Promise.all(updatedContacts).then((data) => {
         return data;
@@ -305,20 +302,20 @@ export class SupplierService {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0012,
             error,
-            SupplierService.name,
+            CustomerService.name,
           );
         } else {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0019,
             error,
-            SupplierService.name,
+            CustomerService.name,
           );
         }
       }
       throw this.errorService.newError(
         this.errorService.ErrConfig.E0010,
         error,
-        SupplierService.name,
+        CustomerService.name,
       );
     }
   }

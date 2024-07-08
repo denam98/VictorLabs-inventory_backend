@@ -221,7 +221,7 @@ export class PrnService {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
           throw this.errorService.newError(
-            this.errorService.ErrConfig.E006,
+            this.errorService.ErrConfig.E007,
             error,
             PrnService.name,
           );
@@ -349,5 +349,13 @@ export class PrnService {
         PrnService.name,
       );
     }
+  }
+
+  async getPrnItemById(prnItemId: string) {
+    return this.postgreService.prn_item.findFirst({
+      where: {
+        id: prnItemId,
+      },
+    });
   }
 }

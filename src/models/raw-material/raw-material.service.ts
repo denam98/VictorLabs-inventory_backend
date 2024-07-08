@@ -274,7 +274,7 @@ export class RawMaterialService {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
           throw this.errorService.newError(
-            this.errorService.ErrConfig.E006,
+            this.errorService.ErrConfig.E007,
             error,
             RawMaterialService.name,
           );
@@ -374,6 +374,24 @@ export class RawMaterialService {
         error,
         RawMaterialService.name,
       );
+    }
+  }
+
+  async createNewRawMaterialCategory(categoryName: string) {
+    try {
+      return await this.postgreService.rm_category.create({
+        data: { name: categoryName },
+      });
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async deleteRawMaterialCategory(id: number) {
+    try {
+      return await this.postgreService.rm_category.delete({ where: { id: Number(id) } });
+    } catch (e) {
+      throw e;
     }
   }
 }

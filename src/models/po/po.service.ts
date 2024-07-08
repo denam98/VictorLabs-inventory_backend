@@ -1,13 +1,15 @@
 import { RequestService } from 'src/config/app/request.service';
 import { ErrorService } from 'src/config/error/error.service';
-import { Injectable } from '@nestjs/common';
-import { po, po_item } from '@prisma/client';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { po, po_item, po_tax_type } from '@prisma/client';
 import { CreatePoDTO, PoItemDTO } from 'src/common/dtos/dto';
 import { PostgresConfigService } from 'src/config/database/postgres/config.service';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { AppConfigService } from 'src/config/app/app-config.service';
 import { SystemActivity } from 'src/common/util/system-activity.enum';
 import lodash from 'lodash';
+import CreateNewPoDto from '../../common/dtos/createNewPo.dto';
+import NewPoItemDto from '../../common/dtos/new-po-item.dto';
 
 @Injectable()
 export class PoService {
@@ -137,19 +139,38 @@ export class PoService {
   async createPo(createPoDto: CreatePoDTO): Promise<po> {
     try {
       const poItems: PoItemDTO[] = createPoDto.items;
+      const taxTypes: number[] = createPoDto.tax_type;
       delete createPoDto.items;
+      delete createPoDto.tax_type;
 
       const po: po = await this.postgreService.po.create({
         data: createPoDto,
       });
 
       // Insert tax related data into po_tax_type table
-      await createPoDto.tax_type.array.forEach((element) => {
-        element['po_id'] = po.id;
-        this.postgreService.po_tax_type.create({
-          data: element,
+      const poTaxCreationPromises: Promise<po_tax_type>[] = taxTypes.map(
+        (element) => {
+          const obj = {
+            po_id: po.id,
+            tax_type_id: element,
+          };
+
+          return this.postgreService.po_tax_type.create({
+            data: obj,
+          });
+        },
+      );
+      await Promise.all(poTaxCreationPromises)
+        .then((rslt) => {
+          po['tax_type'] = rslt;
+        })
+        .catch((error) => {
+          throw this.errorService.newError(
+            this.errorService.ErrConfig.E0019,
+            error,
+            PoService.name,
+          );
         });
-      });
 
       // Inserting data into prn_item_po table and prn_item table qty
       const prnItemPoCreationPromises = poItems.map((item: PoItemDTO) => {
@@ -219,7 +240,7 @@ export class PoService {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
           throw this.errorService.newError(
-            this.errorService.ErrConfig.E006,
+            this.errorService.ErrConfig.E007,
             error,
             PoService.name,
           );
@@ -346,6 +367,84 @@ export class PoService {
         error,
         PoService.name,
       );
+    }
+  }
+
+  async createNewPo(createNewPoDto: CreateNewPoDto) {
+    try {
+      const newItems: NewPoItemDto[] = createNewPoDto.items;
+      let resTaxPromise;
+      const res = await this.postgreService.po.create({
+        data: {
+          supplier_id: createNewPoDto.supplier_id,
+          special_note: createNewPoDto.special_note,
+          delivery_location: createNewPoDto.delivery_location,
+          currency: 'LKR',
+          discount_type: createNewPoDto.discount_type,
+          discount: createNewPoDto.discount,
+          deliver_before: createNewPoDto.deliver_before,
+          contact_person: createNewPoDto.contact_person,
+        },
+      });
+
+      if (!res) {
+        throw new InternalServerErrorException('Cannot Create the PO');
+      }
+
+      if (newItems.length > 0) {
+        const itemPromises = newItems.map((item) => {
+          console.log('inside itemPromise ==> ', {
+            po_id: res.id,
+            rm_id: item.rm_id,
+            qty: item.qty,
+            price_per_unit: item.price_per_unit,
+            prn_item_id: item.prn_item_id,
+          });
+          return new Promise(async (resolve, reject) => {
+            const resCreatePoItem = await this.postgreService.po_item.create({
+              data: {
+                po_id: res.id,
+                rm_id: item.rm_id,
+                qty: item.qty,
+                price_per_unit: item.price_per_unit,
+                prn_item_id: item.prn_item_id,
+              },
+            });
+
+            if (resCreatePoItem) {
+              resolve(resCreatePoItem);
+            } else {
+              reject(resCreatePoItem);
+            }
+          });
+        });
+
+        if (createNewPoDto.tax_type.length > 0) {
+          resTaxPromise = createNewPoDto.tax_type.map(async (tax) => {
+            return await new Promise(async (resolve, reject) => {
+              const resTaxType = await this.postgreService.po_tax_type.create({
+                data: { po_id: res.id, tax_type_id: tax },
+              });
+              if (resTaxType) {
+                resolve(resTaxType);
+              } else {
+                reject(resTaxType);
+              }
+            });
+          });
+        }
+
+        const finalRes = await Promise.all(itemPromises);
+        const taxRes = await Promise.all(resTaxPromise);
+
+        if (finalRes) {
+          return { ...res, items: finalRes, tax_type: taxRes };
+        } else {
+          throw new Error('Unknown Exception');
+        }
+      }
+    } catch (e) {
+      return Promise.reject(e);
     }
   }
 }

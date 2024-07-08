@@ -53,6 +53,11 @@ export class PrnController {
     return await this.prnService.deletePrn(prnId);
   }
 
+  @Get('/prn-item/:prnItemId')
+  async findPrnItemById(@Param('prnItemId') prnItemId: string) {
+    return await this.prnService.getPrnItemById(prnItemId);
+  }
+
   @Put('/:id')
   async updatePrn(
     @Param('id') prnId: string,

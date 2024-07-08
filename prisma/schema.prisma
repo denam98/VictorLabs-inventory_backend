@@ -88,6 +88,7 @@ model raw_material {
   uom            uom           @relation(fields: [uom_id], references: [id])
   supplier       rm_supplier[]
   srn_item       srn_item[]
+  product_costing_item product_costing_item[]
 }
 
 model supplier {
@@ -172,7 +173,7 @@ model po {
   discount          Decimal?
   supplier_id       String
   created_at        DateTime      @default(now())
-  po_no             String?        @unique
+  po_no             String?       @unique
   grn               grn?
   supplier          supplier      @relation(fields: [supplier_id], references: [id])
   po_item           po_item[]
@@ -290,33 +291,127 @@ model grn_tax_type {
 }
 
 model customer {
-  id                        String   @id @default(uuid())
-  name                      String
-  type                      String
-  code                      String
-  vat                       Decimal
-  web_site                  String
-  telephone                 String
-  email                     String
-  address                   String
-  credit_amount             Decimal
-  credit_period             Int
-  is_credit_allowed         Boolean
-  is_discount_allowed       Boolean
-  max_discount_percentage   Decimal
-  max_discount_value        Decimal
-  is_active                 Boolean
+  id String @id @default(uuid())
+  name String
+  type String
+  code String
+  vat Decimal
+  website String
+  telephone String
+  email String
+  address String
+  credit_amount Decimal
+  credit_period Int
+  is_credit_allowed Boolean
+  is_discount_allowed Boolean
+  max_discount_percentage Decimal
+  max_discount_value Decimal
+  is_active Boolean @default(true)
 
   customer_contact customer_contact[]
 }
 
 model customer_contact {
-  id          Int @id 
-  customer_id String
-  telephone String?
-  mobile String?
-  email String?
+  id Int @id @default(autoincrement())
+  telephone String
+  mobile String
+  email String
   is_active Boolean @default(true)
 
+  customer_id String
   customer customer @relation(fields: [customer_id], references: [id])
+}
+
+model batch {
+  id String @id @default(uuid())
+  name String
+  start_date DateTime
+  end_date DateTime
+  is_complete Boolean
+  batch_item batch_item[]
+}
+
+model batch_item {
+  id Int @id @default(autoincrement())
+  batch_id String
+  rm_id String
+  qty Decimal
+  is_active    Boolean      @default(true)
+
+  batch batch @relation(fields: [batch_id], references: [id])
+}
+
+model rm_issue {
+  id String @id @default(uuid())
+  batch_id String
+  issue_note_no Int
+  is_active    Boolean      @default(true)
+
+  rm_issue_item rm_issue_item[]
+}
+
+model rm_issue_item {
+  id Int @id @default(autoincrement())
+  rm_issue_id String
+  rm_id String
+  qty Decimal
+  issue_to String
+  is_active    Boolean      @default(true)
+
+  rm_issue rm_issue @relation(fields: [rm_issue_id], references: [id])
+}
+
+model product_category {
+  id Int @id @default(autoincrement())
+  name String
+  code String
+  is_active Boolean @default(true)
+  product_sub_category product_sub_category[]
+}
+
+model product_sub_category {
+  id Int @id @default(autoincrement())
+  category_id Int
+  name String
+  code String
+  is_active Boolean @default(true)
+  product_category product_category @relation(fields: [category_id], references: [id])
+  product product?
+}
+
+model product_costing_item {
+  id Int @id @default(autoincrement())
+  rm_id String
+  qty Decimal
+  raw_material raw_material @relation(fields: [rm_id], references: [id])
+}
+
+model product {
+  id String @id @default(uuid())
+  product_sub_category_id Int @unique
+  name String
+  code String
+  description String
+  uom_id Int
+  is_customized Boolean @default(true)
+  is_active Boolean @default(true)
+  product_price_id Int @unique
+  product_sub_category product_sub_category @relation(fields: [product_sub_category_id], references: [id])
+  product_price product_price @relation(fields: [product_price_id], references: [id])
+}
+
+model product_price {
+  id Int @id @default(autoincrement())
+  product product?
+  price Decimal
+  reason_id Int @unique
+  is_active Boolean @default(true)
+  price_change_reason price_change_reason @relation(fields: [reason_id], references: [id])
+}
+
+model price_change_reason {
+  id Int @id @default(autoincrement())
+  reason_name String
+  is_active Boolean @default(true)
+  product_price product_price?
 }

@@ -1,4 +1,3 @@
-import { AddSupplierContactDTO } from './../../common/dtos/add-supplier-contact.dto';
 import {
   Body,
   Controller,
@@ -9,7 +8,7 @@ import {
   Put,
 } from '@nestjs/common';
 import { SupplierService } from './supplier.service';
-import { AddSupplierDTO } from 'src/common/dtos/dto';
+import { AddSupplierDTO, AddSupplierContactDTO } from 'src/common/dtos/dto';
 
 @Controller('api/v1/supplier')
 export class SupplierController {

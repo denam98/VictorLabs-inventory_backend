@@ -59,6 +59,11 @@ export class RawMaterialController {
     return await this.rawMaterialService.deleteRawMaterial(materialId);
   }
 
+  @Post('/add-category')
+  async addNewRawMaterialCategory(@Body() req: any) {
+    return await this.rawMaterialService.createNewRawMaterialCategory(req.name);
+  }
+
   @Put('/:id')
   async updateRawMaterial(
     @Param('id') materialId: string,
@@ -69,5 +74,10 @@ export class RawMaterialController {
       data: addRawMaterialDto,
     };
     return await this.rawMaterialService.updateRawMaterial(params);
+  }
+
+  @Delete('/category/:id')
+  async deleteRmCategory(@Param('id') id: number){
+    return await this.rawMaterialService.deleteRawMaterialCategory(id);
   }
 }

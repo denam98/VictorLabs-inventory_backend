@@ -1,15 +1,15 @@
 import { RequestService } from 'src/config/app/request.service';
 import { ErrorService } from 'src/config/error/error.service';
 import { Injectable } from '@nestjs/common';
-import { supplier, supplier_contact } from '@prisma/client';
-import { AddSupplierContactDTO, AddSupplierDTO } from 'src/common/dtos/dto';
+import { batch, batch_item } from '@prisma/client';
+import { BatchDTO, BatchItemDTO } from 'src/common/dtos/dto';
 import { PostgresConfigService } from 'src/config/database/postgres/config.service';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { AppConfigService } from 'src/config/app/app-config.service';
 import { SystemActivity } from 'src/common/util/system-activity.enum';
 
 @Injectable()
-export class SupplierService {
+export class BatchService {
   currUser: string;
 
   constructor(
@@ -21,17 +21,17 @@ export class SupplierService {
     this.currUser = this.requestService.getUserId();
     this.errorService.printLog(
       'info',
-      SupplierService.name,
+      BatchService.name,
       'current user ===> ' + this.currUser,
     );
   }
 
-  async findSupplierByName(name: string): Promise<supplier[]> {
+  async findBatchByName(name: string): Promise<batch[]> {
     try {
-      return await this.postgreService.supplier.findMany({
+      return await this.postgreService.batch.findMany({
         where: {
           name: name,
-          is_active: true,
+          is_complete: true,
         },
       });
     } catch (error) {
@@ -40,159 +40,151 @@ export class SupplierService {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E001,
             error,
-            SupplierService.name,
+            BatchService.name,
           );
         } else {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0016,
             error,
-            SupplierService.name,
+            BatchService.name,
           );
         }
       }
       throw this.errorService.newError(
         this.errorService.ErrConfig.E0010,
         error,
-        SupplierService.name,
+        BatchService.name,
       );
     }
   }
 
-  async getAllSuppliers(): Promise<supplier[]> {
+  async getAllBatches(): Promise<batch[]> {
     try {
-      const supplier: supplier[] = await this.postgreService.supplier.findMany({
-        where: {
-          is_active: true,
-        },
+      const batch: batch[] = await this.postgreService.batch.findMany({
         include: {
-          contact: {
-            where: { is_active: true },
-          },
-          raw_material: {
+          batch_item: {
             where: { is_active: true },
           },
         },
       });
-      return supplier;
+      return batch;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         throw this.errorService.newError(
           this.errorService.ErrConfig.E0016,
           error,
-          SupplierService.name,
+          BatchService.name,
         );
       }
       throw this.errorService.newError(
         this.errorService.ErrConfig.E0010,
         error,
-        SupplierService.name,
+        BatchService.name,
       );
     }
   }
 
-  async getSupplierById(supplierId: string): Promise<supplier> {
+  async getBatchById(batchId: string): Promise<batch> {
     try {
-      const supplier: supplier =
-        await this.postgreService.supplier.findFirstOrThrow({
-          where: {
-            id: supplierId,
-            is_active: true,
-          },
-          include: {
-            contact: {
-              where: { is_active: true },
-            },
-            raw_material: {
-              where: { is_active: true },
+      const batch: batch = await this.postgreService.batch.findFirstOrThrow({
+        where: {
+          id: batchId,
+          is_complete: true,
+        },
+        include: {
+          batch_item: {
+            where: {
+              is_active: true,
             },
           },
-        });
-      return supplier;
+        },
+      });
+      return batch;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0012,
             error,
-            SupplierService.name,
+            BatchService.name,
           );
         } else {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0016,
             error,
-            SupplierService.name,
+            BatchService.name,
           );
         }
       }
       throw this.errorService.newError(
         this.errorService.ErrConfig.E0010,
         error,
-        SupplierService.name,
+        BatchService.name,
       );
     }
   }
 
-  async addSupplier(data: {
-    addSupplierDto: AddSupplierDTO;
-    supplierContacts: AddSupplierContactDTO[];
-  }): Promise<supplier> {
+  async addBatch(data: {
+    addBatchDto: BatchDTO;
+    batchItems: BatchItemDTO[];
+  }): Promise<batch> {
     try {
-      const supplier: supplier = await this.postgreService.supplier.create({
-        data: data.addSupplierDto,
+      const batch: batch = await this.postgreService.batch.create({
+        data: data.addBatchDto,
       });
 
-      await this.postgreService.supplier_contact.createMany({
-        data: data.supplierContacts.map((contact: AddSupplierContactDTO) => {
-          contact.supplier_id = supplier.id;
-          return contact;
+      await this.postgreService.batch_item.createMany({
+        data: data.batchItems.map((item: BatchItemDTO) => {
+          item.batch_id = batch.id;
+          return item;
         }),
       });
 
       await this.commonService.recordSystemActivity(
-        SystemActivity.add_supplier,
+        SystemActivity.create_batch,
         this.currUser,
-        supplier.id,
+        batch.id,
       );
-      return supplier;
+      return batch;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E007,
             error,
-            SupplierService.name,
+            BatchService.name,
           );
         } else {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0019,
             error,
-            SupplierService.name,
+            BatchService.name,
           );
         }
       }
       throw this.errorService.newError(
         this.errorService.ErrConfig.E0010,
         error,
-        SupplierService.name,
+        BatchService.name,
       );
     }
   }
 
-  async deleteSupplier(supplierId: string): Promise<supplier> {
+  async deleteBatch(batchId: string): Promise<batch> {
     try {
-      const supplier: supplier = await this.postgreService.supplier.update({
+      const batch: batch = await this.postgreService.batch.update({
         where: {
-          id: supplierId,
-          is_active: true,
+          id: batchId,
+          is_complete: true,
         },
         data: {
-          is_active: false,
+          is_complete: false,
         },
       });
 
-      await this.postgreService.supplier_contact.updateMany({
+      await this.postgreService.batch_item.updateMany({
         where: {
-          supplier_id: supplier.id,
+          batch_id: batch.id,
           is_active: true,
         },
         data: {
@@ -201,102 +193,102 @@ export class SupplierService {
       });
 
       await this.commonService.recordSystemActivity(
-        SystemActivity.delete_supplier,
+        SystemActivity.delete_batch,
         this.currUser,
-        supplier.id,
+        batch.id,
       );
-      return supplier;
+      return batch;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0012,
             error,
-            SupplierService.name,
+            BatchService.name,
           );
         } else {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0018,
             error,
-            SupplierService.name,
+            BatchService.name,
           );
         }
       }
       throw this.errorService.newError(
         this.errorService.ErrConfig.E0010,
         error,
-        SupplierService.name,
+        BatchService.name,
       );
     }
   }
 
-  async updateSupplier(params: {
+  async updateBatch(params: {
     where: { id: string; is_active: boolean };
-    data: AddSupplierDTO;
-  }): Promise<supplier> {
+    data: BatchDTO;
+  }): Promise<batch> {
     try {
       const { where, data } = params;
-      const supplier: supplier = await this.postgreService.supplier.update({
+      const batch: batch = await this.postgreService.batch.update({
         where,
         data,
       });
       await this.commonService.recordSystemActivity(
-        SystemActivity.update_supplier,
+        SystemActivity.update_batch,
         this.currUser,
-        supplier.id,
+        batch.id,
       );
-      return supplier;
+      return batch;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0012,
             error,
-            SupplierService.name,
+            BatchService.name,
           );
         } else {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0019,
             error,
-            SupplierService.name,
+            BatchService.name,
           );
         }
       }
       throw this.errorService.newError(
         this.errorService.ErrConfig.E0010,
         error,
-        SupplierService.name,
+        BatchService.name,
       );
     }
   }
 
-  async updateContactDetails(
-    contacts: AddSupplierContactDTO[],
-    supplierId: string,
-  ): Promise<supplier_contact[]> {
+  async updateBatchItems(
+    items: BatchItemDTO[],
+    batchId: string,
+  ): Promise<batch_item[]> {
     try {
-      const updatedContacts: Promise<supplier_contact>[] = await contacts.map(
-        async (contact: AddSupplierContactDTO) => {
-          const id = contact.id ? contact.id : -1;
-          contact.id ? delete contact.id : null;
-          console.log(contact);
-          return await this.postgreService.supplier_contact.upsert({
+      const updatedItems: Promise<batch_item>[] = await items.map(
+        async (item: BatchItemDTO) => {
+          const id = item.id ? item.id : -1;
+          item.id ? delete item.id : null;
+          console.log(item);
+          return await this.postgreService.batch_item.upsert({
             where: {
               id: id,
-              supplier_id: supplierId,
+              batch_id: batchId,
               is_active: true,
             },
-            update: contact,
-            create: contact,
+            update: item,
+            create: item,
           });
         },
       );
       await this.commonService.recordSystemActivity(
-        SystemActivity.update_supplier,
+        SystemActivity.update_batch_item,
         this.currUser,
-        supplierId,
+        batchId,
       );
-      return Promise.all(updatedContacts).then((data) => {
+      return Promise.all(updatedItems).then((data) => {
         return data;
       });
     } catch (error) {
@@ -305,20 +297,20 @@ export class SupplierService {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0012,
             error,
-            SupplierService.name,
+            BatchService.name,
           );
         } else {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0019,
             error,
-            SupplierService.name,
+            BatchService.name,
           );
         }
       }
       throw this.errorService.newError(
         this.errorService.ErrConfig.E0010,
         error,
-        SupplierService.name,
+        BatchService.name,
       );
     }
   }

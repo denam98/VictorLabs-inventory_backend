@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { PoService } from './po.service';
 import { CreatePoDTO } from 'src/common/dtos/dto';
+import CreateNewPoDto from '../../common/dtos/createNewPo.dto';
 
 @Controller('api/v1/po')
 export class PoController {
@@ -47,5 +48,10 @@ export class PoController {
       data: createPoDto,
     };
     return await this.poService.updatePo(params);
+  }
+
+  @Post('/add-v2')
+  async createNewPo(@Body() createNewPoDto: CreateNewPoDto): Promise<any> {
+    return await this.poService.createNewPo(createNewPoDto);
   }
 }

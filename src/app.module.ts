@@ -25,6 +25,12 @@ import { PrnModule } from './models/prn/prn.module';
 import { PoModule } from './models/po/po.module';
 import { SrnModule } from './models/srn/srn.module';
 import { TaxModule } from './models/tax/tax.module';
+import { GrnModule } from './models/grn/grn.module';
+import { CustomerModule } from './models/customer/customer.module';
+import { BatchModule } from './models/batch/batch.module';
+import { RMIssueModule } from './models/rm-issue/rm-issue.module';
+import { ProductModule } from './models/product/product.module';
+import { UomModule } from "./models/uom/uom.module";
 
 @Module({
   imports: [
@@ -38,8 +44,13 @@ import { TaxModule } from './models/tax/tax.module';
     SrnModule,
     TaxModule,
     PoModule,
+    GrnModule,
+    CustomerModule,
+    BatchModule,
+    RMIssueModule,
     PostgresConfigModule,
     ErrorModule,
+    ProductModule,
     MailerModule.forRoot({
       transport: {
         host: 'smtp.gmail.com',
@@ -82,6 +93,7 @@ import { TaxModule } from './models/tax/tax.module';
         }),
       ],
     }),
+    UomModule,
   ],
   providers: [AppService],
 })
