@@ -288,3 +288,35 @@ model grn_tax_type {
   grn         grn      @relation(fields: [grn_id], references: [id])
   tax_type    tax_type @relation(fields: [tax_type_id], references: [id])
 }
+
+model customer {
+  id                        String   @id @default(uuid())
+  name                      String
+  type                      String
+  code                      String
+  vat                       Decimal
+  web_site                  String
+  telephone                 String
+  email                     String
+  address                   String
+  credit_amount             Decimal
+  credit_period             Int
+  is_credit_allowed         Boolean
+  is_discount_allowed       Boolean
+  max_discount_percentage   Decimal
+  max_discount_value        Decimal
+  is_active                 Boolean
+
+  customer_contact customer_contact[]
+}
+
+model customer_contact {
+  id          Int @id 
+  customer_id String
+  telephone String?
+  mobile String?
+  email String?
+  is_active Boolean @default(true)
+
+  customer customer @relation(fields: [customer_id], references: [id])
+}
