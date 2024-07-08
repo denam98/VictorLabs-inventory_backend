@@ -376,4 +376,22 @@ export class RawMaterialService {
       );
     }
   }
+
+  async createNewRawMaterialCategory(categoryName: string) {
+    try {
+      return await this.postgreService.rm_category.create({
+        data: { name: categoryName },
+      });
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async deleteRawMaterialCategory(id: number) {
+    try {
+      return await this.postgreService.rm_category.delete({ where: { id: Number(id) } });
+    } catch (e) {
+      throw e;
+    }
+  }
 }
