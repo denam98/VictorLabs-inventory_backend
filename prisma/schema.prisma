@@ -376,7 +376,7 @@ model product_sub_category {
   code String
   is_active Boolean @default(true)
   product_category product_category @relation(fields: [category_id], references: [id])
-  product product?
+  product product[]
 }
 
 model product_costing_item {
@@ -395,17 +395,17 @@ model product {
   uom_id Int
   is_customized Boolean @default(true)
   is_active Boolean @default(true)
-  product_price_id Int @unique
   product_sub_category product_sub_category @relation(fields: [product_sub_category_id], references: [id])
-  product_price product_price @relation(fields: [product_price_id], references: [id])
+  product_price product_price[]
 }
 
 model product_price {
   id Int @id @default(autoincrement())
-  product product?
   price Decimal
   reason_id Int @unique
   is_active Boolean @default(true)
+  product_id String
+  product product @relation(fields: [product_id], references: [id])
   price_change_reason price_change_reason @relation(fields: [reason_id], references: [id])
 }
 

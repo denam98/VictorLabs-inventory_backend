@@ -48,6 +48,7 @@ import { UomModule } from "./models/uom/uom.module";
     CustomerModule,
     BatchModule,
     RMIssueModule,
+    ProductModule,
     PostgresConfigModule,
     ErrorModule,
     ProductModule,
