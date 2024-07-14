@@ -48,6 +48,7 @@ import { UomModule } from './models/uom/uom.module';
     CustomerModule,
     BatchModule,
     RMIssueModule,
+    UomModule,
     ProductModule,
     PostgresConfigModule,
     ErrorModule,
@@ -94,7 +95,6 @@ import { UomModule } from './models/uom/uom.module';
         }),
       ],
     }),
-    UomModule,
   ],
   providers: [AppService],
 })

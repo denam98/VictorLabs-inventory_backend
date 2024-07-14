@@ -36,9 +36,14 @@ export enum SystemActivity {
   'update_RM_issue' = 34,
   'delete_RM_issue' = 35,
   'update_RM_issue_item' = 36,
-  'add_product' = 37,
-  'delete_product' = 38,
-  'update_product' = 39,
+  'add_product_category' = 37,
+  'add_product_sub_category' = 38,
+  'add_product' = 39,
+  'delete_product' = 40,
+  'update_product' = 41,
+  'add_product_costing_item' = 42,
+  'add_product_price_change_reason' = 43,
+  'add_product_price' = 44,
 }
 
 export enum SystemActivityMsg {
@@ -79,7 +84,12 @@ export enum SystemActivityMsg {
   'RM issue updated',
   'RM issue deleted',
   'RM issue item updated',
+  'Product category added',
+  'Product sub-category added',
   'Product added',
   'Product deleted',
   'Product updated',
+  'Product costing item added',
+  'Product price change reason added',
+  'Product price added',
 }

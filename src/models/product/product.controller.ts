@@ -10,7 +10,11 @@ import {
   Query,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
-import { AddProductDTO } from 'src/common/dtos/dto';
+import {
+  AddProductCategoryDTO,
+  AddProductDTO,
+  AddProductSubCategoryDTO,
+} from 'src/common/dtos/dto';
 
 @Controller('api/v1/product')
 export class ProductController {
@@ -24,6 +28,18 @@ export class ProductController {
   @Get('categories/all')
   async getAllProductCategories() {
     return await this.productService.getAllProductCategories();
+  }
+
+  @Post('categories/add')
+  async addProductCategory(@Body() addProductCatDto: AddProductCategoryDTO) {
+    return await this.productService.addProductCategory(addProductCatDto);
+  }
+
+  @Post('sub_categories/add')
+  async addProductSubCategory(
+    @Body() addProductSubCatDto: AddProductSubCategoryDTO,
+  ) {
+    return await this.productService.addProductSubCategory(addProductSubCatDto);
   }
 
   @Get('/:id')
@@ -74,5 +90,47 @@ export class ProductController {
     @Param('id', ParseIntPipe) categoryId: number,
   ) {
     return await this.productService.getProductSubCategoryById(categoryId);
+  }
+
+  @Post('/costing_item/add')
+  async createProductCostingItem(
+    @Body() costingItem: { rm_id: string; qty: number },
+  ) {
+    return await this.productService.createProductCostingItem(costingItem);
+  }
+
+  @Get('/costing_item')
+  async getAllProductCostingItems() {
+    return await this.productService.getAllProductCostingItems();
+  }
+
+  @Post('/price_change/add')
+  async createProductPriceChange(
+    @Body() priceChange: { reason_name: string; is_active: boolean },
+  ) {
+    return await this.productService.createProductPriceChange(priceChange);
+  }
+
+  @Get('/price_change')
+  async getAllProductPriceChanges() {
+    return await this.productService.getAllProductPriceChanges();
+  }
+
+  @Post('/price/add')
+  async addProductPrice(
+    @Body()
+    price: {
+      price: number;
+      reason_id: number;
+      is_active: boolean;
+      product_id: string;
+    },
+  ) {
+    return await this.productService.addProductPrice(price);
+  }
+
+  @Get('/price')
+  async getAllProductPrices() {
+    return await this.productService.getAllProductPrices();
   }
 }

@@ -62,32 +62,33 @@ model rm_category {
 }
 
 model uom {
-  id           Int            @id @default(autoincrement())
-  name         String
-  is_active    Boolean        @default(true)
-  raw_material raw_material[]
+  id                   Int                    @id @default(autoincrement())
+  name                 String
+  is_active            Boolean                @default(true)
+  raw_material         raw_material[]
+  product_sub_category product_sub_category[]
 }
 
 model raw_material {
-  id             String        @id @default(uuid())
-  name           String
-  item_code      String
-  is_active      Boolean       @default(true)
-  is_inventory   Boolean       @default(true)
-  created_at     DateTime      @default(now())
-  updated_at     DateTime      @updatedAt
-  uom_id         Int
-  description    String?
-  re_order_level String?
-  re_order_qty   Decimal?
-  rm_category_id Int
-  grn_item       grn_item[]
-  po_item        po_item[]
-  prn_item       prn_item[]
-  rm_category    rm_category   @relation(fields: [rm_category_id], references: [id])
-  uom            uom           @relation(fields: [uom_id], references: [id])
-  supplier       rm_supplier[]
-  srn_item       srn_item[]
+  id                   String                 @id @default(uuid())
+  name                 String
+  item_code            String
+  is_active            Boolean                @default(true)
+  is_inventory         Boolean                @default(true)
+  created_at           DateTime               @default(now())
+  updated_at           DateTime               @updatedAt
+  uom_id               Int
+  description          String?
+  re_order_level       String?
+  re_order_qty         Decimal?
+  rm_category_id       Int
+  grn_item             grn_item[]
+  po_item              po_item[]
+  prn_item             prn_item[]
+  rm_category          rm_category            @relation(fields: [rm_category_id], references: [id])
+  uom                  uom                    @relation(fields: [uom_id], references: [id])
+  supplier             rm_supplier[]
+  srn_item             srn_item[]
   product_costing_item product_costing_item[]
 }
 
@@ -291,127 +292,129 @@ model grn_tax_type {
 }
 
 model customer {
-  id String @id @default(uuid())
-  name String
-  type String
-  code String
-  vat Decimal
-  website String
-  telephone String
-  email String
-  address String
-  credit_amount Decimal
-  credit_period Int
-  is_credit_allowed Boolean
-  is_discount_allowed Boolean
+  id                      String  @id @default(uuid())
+  name                    String
+  type                    String
+  code                    String
+  vat                     Decimal
+  website                 String
+  telephone               String
+  email                   String
+  address                 String
+  credit_amount           Decimal
+  credit_period           Int
+  is_credit_allowed       Boolean
+  is_discount_allowed     Boolean
   max_discount_percentage Decimal
-  max_discount_value Decimal
-  is_active Boolean @default(true)
+  max_discount_value      Decimal
+  is_active               Boolean @default(true)
 
   customer_contact customer_contact[]
 }
 
 model customer_contact {
-  id Int @id @default(autoincrement())
+  id        Int     @id @default(autoincrement())
   telephone String
-  mobile String
-  email String
+  mobile    String
+  email     String
   is_active Boolean @default(true)
 
   customer_id String
-  customer customer @relation(fields: [customer_id], references: [id])
+  customer    customer @relation(fields: [customer_id], references: [id])
 }
 
 model batch {
-  id String @id @default(uuid())
-  name String
-  start_date DateTime
-  end_date DateTime
+  id          String       @id @default(uuid())
+  name        String
+  start_date  DateTime
+  end_date    DateTime
   is_complete Boolean
-  batch_item batch_item[]
+  batch_item  batch_item[]
 }
 
 model batch_item {
-  id Int @id @default(autoincrement())
-  batch_id String
-  rm_id String
-  qty Decimal
-  is_active    Boolean      @default(true)
+  id        Int     @id @default(autoincrement())
+  batch_id  String
+  rm_id     String
+  qty       Decimal
+  is_active Boolean @default(true)
 
   batch batch @relation(fields: [batch_id], references: [id])
 }
 
 model rm_issue {
-  id String @id @default(uuid())
-  batch_id String
+  id            String  @id @default(uuid())
+  batch_id      String
   issue_note_no Int
-  is_active    Boolean      @default(true)
+  is_active     Boolean @default(true)
 
   rm_issue_item rm_issue_item[]
 }
 
 model rm_issue_item {
-  id Int @id @default(autoincrement())
+  id          Int     @id @default(autoincrement())
   rm_issue_id String
-  rm_id String
-  qty Decimal
-  issue_to String
-  is_active    Boolean      @default(true)
+  rm_id       String
+  qty         Decimal
+  issue_to    String
+  is_active   Boolean @default(true)
 
   rm_issue rm_issue @relation(fields: [rm_issue_id], references: [id])
 }
 
 model product_category {
-  id Int @id @default(autoincrement())
-  name String
-  code String
-  is_active Boolean @default(true)
+  id                   Int                    @id @default(autoincrement())
+  name                 String
+  code                 String
+  is_active            Boolean                @default(true)
   product_sub_category product_sub_category[]
 }
 
 model product_sub_category {
-  id Int @id @default(autoincrement())
-  category_id Int
-  name String
-  code String
-  is_active Boolean @default(true)
+  id               Int              @id @default(autoincrement())
+  category_id      Int
+  name             String
+  code             String
+  is_active        Boolean          @default(true)
+  uom_id           Int
   product_category product_category @relation(fields: [category_id], references: [id])
-  product product[]
+  product          product[]
+  uom              uom              @relation(fields: [uom_id], references: [id])
 }
 
 model product_costing_item {
-  id Int @id @default(autoincrement())
-  rm_id String
-  qty Decimal
+  id           Int          @id @default(autoincrement())
+  rm_id        String
+  qty          Decimal
   raw_material raw_material @relation(fields: [rm_id], references: [id])
 }
 
 model product {
-  id String @id @default(uuid())
-  product_sub_category_id Int @unique
-  name String
-  code String
-  description String
-  uom_id Int
-  is_customized Boolean @default(true)
-  is_active Boolean @default(true)
-  product_sub_category product_sub_category @relation(fields: [product_sub_category_id], references: [id])
-  product_price product_price[]
+  id                      String               @id @default(uuid())
+  product_sub_category_id Int                  @unique
+  name                    String
+  code                    String
+  description             String
+  uom_id                  Int
+  is_customized           Boolean              @default(true)
+  is_active               Boolean              @default(true)
+  product_sub_category    product_sub_category @relation(fields: [product_sub_category_id], references: [id])
+  product_price           product_price[]
 }
 
 model product_price {
-  id Int @id @default(autoincrement())
-  price Decimal
-  reason_id Int @unique
-  is_active Boolean @default(true)
-  product_id String
-  product product @relation(fields: [product_id], references: [id])
+  id                  Int                 @id @default(autoincrement())
+  price               Decimal
+  reason_id           Int                 @unique
+  is_active           Boolean             @default(true)
+  product_id          String
+  product             product             @relation(fields: [product_id], references: [id])
   price_change_reason price_change_reason @relation(fields: [reason_id], references: [id])
 }
 
 model price_change_reason {
-  id Int @id @default(autoincrement())
-  reason_name String
-  is_active Boolean @default(true)
+  id            Int            @id @default(autoincrement())
+  reason_name   String
+  is_active     Boolean        @default(true)
   product_price product_price?
 }

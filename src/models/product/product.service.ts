@@ -2,11 +2,18 @@ import { RequestService } from 'src/config/app/request.service';
 import { ErrorService } from 'src/config/error/error.service';
 import { Injectable } from '@nestjs/common';
 import {
+  price_change_reason,
   product,
   product_category,
+  product_costing_item,
+  product_price,
   product_sub_category,
 } from '@prisma/client';
-import { AddProductDTO } from 'src/common/dtos/dto';
+import {
+  AddProductCategoryDTO,
+  AddProductDTO,
+  AddProductSubCategoryDTO,
+} from 'src/common/dtos/dto';
 import { PostgresConfigService } from 'src/config/database/postgres/config.service';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { AppConfigService } from 'src/config/app/app-config.service';
@@ -375,6 +382,283 @@ export class ProductService {
         } else {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0016,
+            error,
+            ProductService.name,
+          );
+        }
+      }
+      throw this.errorService.newError(
+        this.errorService.ErrConfig.E0010,
+        error,
+        ProductService.name,
+      );
+    }
+  }
+
+  async addProductSubCategory(
+    addProductSubCatDto: AddProductSubCategoryDTO,
+  ): Promise<product_sub_category> {
+    try {
+      const productSubCategory: product_sub_category =
+        await this.postgreService.product_sub_category.create({
+          data: addProductSubCatDto,
+        });
+      await this.commonService.recordSystemActivity(
+        SystemActivity.add_product_sub_category,
+        this.currUser,
+        productSubCategory.id,
+      );
+      return productSubCategory;
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        if (error.code === 'P2002') {
+          throw this.errorService.newError(
+            this.errorService.ErrConfig.E007,
+            error,
+            ProductService.name,
+          );
+        } else {
+          throw this.errorService.newError(
+            this.errorService.ErrConfig.E0019,
+            error,
+            ProductService.name,
+          );
+        }
+      }
+      throw this.errorService.newError(
+        this.errorService.ErrConfig.E0010,
+        error,
+        ProductService.name,
+      );
+    }
+  }
+
+  async addProductCategory(
+    addProductCatDto: AddProductCategoryDTO,
+  ): Promise<product_category> {
+    try {
+      const productCategory: product_category =
+        await this.postgreService.product_category.create({
+          data: addProductCatDto,
+        });
+      await this.commonService.recordSystemActivity(
+        SystemActivity.add_product_category,
+        this.currUser,
+        productCategory.id,
+      );
+      return productCategory;
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        if (error.code === 'P2002') {
+          throw this.errorService.newError(
+            this.errorService.ErrConfig.E007,
+            error,
+            ProductService.name,
+          );
+        } else {
+          throw this.errorService.newError(
+            this.errorService.ErrConfig.E0019,
+            error,
+            ProductService.name,
+          );
+        }
+      }
+      throw this.errorService.newError(
+        this.errorService.ErrConfig.E0010,
+        error,
+        ProductService.name,
+      );
+    }
+  }
+
+  async getAllProductCostingItems(): Promise<product_costing_item[]> {
+    try {
+      const productCostingItems: product_costing_item[] =
+        await this.postgreService.product_costing_item.findMany({
+          include: {
+            raw_material: true,
+          },
+        });
+      return productCostingItems;
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        throw this.errorService.newError(
+          this.errorService.ErrConfig.E0016,
+          error,
+          ProductService.name,
+        );
+      }
+      throw this.errorService.newError(
+        this.errorService.ErrConfig.E0010,
+        error,
+        ProductService.name,
+      );
+    }
+  }
+
+  async createProductCostingItem(costingItem: {
+    rm_id: string;
+    qty: number;
+  }): Promise<product_costing_item> {
+    try {
+      const productCostingItem: product_costing_item =
+        await this.postgreService.product_costing_item.create({
+          data: costingItem,
+        });
+      await this.commonService.recordSystemActivity(
+        SystemActivity.add_product_costing_item,
+        this.currUser,
+        productCostingItem.id,
+      );
+      return productCostingItem;
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        if (error.code === 'P2002') {
+          throw this.errorService.newError(
+            this.errorService.ErrConfig.E007,
+            error,
+            ProductService.name,
+          );
+        } else {
+          throw this.errorService.newError(
+            this.errorService.ErrConfig.E0019,
+            error,
+            ProductService.name,
+          );
+        }
+      }
+      throw this.errorService.newError(
+        this.errorService.ErrConfig.E0010,
+        error,
+        ProductService.name,
+      );
+    }
+  }
+
+  async getAllProductPriceChanges(): Promise<price_change_reason[]> {
+    try {
+      const productPriceChangeReasons: price_change_reason[] =
+        await this.postgreService.price_change_reason.findMany({
+          where: {
+            is_active: true,
+          },
+          include: {
+            product_price: true,
+          },
+        });
+      return productPriceChangeReasons;
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        throw this.errorService.newError(
+          this.errorService.ErrConfig.E0016,
+          error,
+          ProductService.name,
+        );
+      }
+      throw this.errorService.newError(
+        this.errorService.ErrConfig.E0010,
+        error,
+        ProductService.name,
+      );
+    }
+  }
+
+  async createProductPriceChange(priceChange: {
+    reason_name: string;
+    is_active: boolean;
+  }): Promise<price_change_reason> {
+    try {
+      const priceChangeReason: price_change_reason =
+        await this.postgreService.price_change_reason.create({
+          data: priceChange,
+        });
+      await this.commonService.recordSystemActivity(
+        SystemActivity.add_product_price_change_reason,
+        this.currUser,
+        priceChangeReason.id,
+      );
+      return priceChangeReason;
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        if (error.code === 'P2002') {
+          throw this.errorService.newError(
+            this.errorService.ErrConfig.E007,
+            error,
+            ProductService.name,
+          );
+        } else {
+          throw this.errorService.newError(
+            this.errorService.ErrConfig.E0019,
+            error,
+            ProductService.name,
+          );
+        }
+      }
+      throw this.errorService.newError(
+        this.errorService.ErrConfig.E0010,
+        error,
+        ProductService.name,
+      );
+    }
+  }
+
+  async getAllProductPrices(): Promise<product_price[]> {
+    try {
+      const productPrices: product_price[] =
+        await this.postgreService.product_price.findMany({
+          where: {
+            is_active: true,
+          },
+          include: {
+            product: true,
+            price_change_reason: true,
+          },
+        });
+      return productPrices;
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        throw this.errorService.newError(
+          this.errorService.ErrConfig.E0016,
+          error,
+          ProductService.name,
+        );
+      }
+      throw this.errorService.newError(
+        this.errorService.ErrConfig.E0010,
+        error,
+        ProductService.name,
+      );
+    }
+  }
+
+  async addProductPrice(price: {
+    price: number;
+    reason_id: number;
+    is_active: boolean;
+    product_id: string;
+  }): Promise<product_price> {
+    try {
+      const newPrice: product_price =
+        await this.postgreService.product_price.create({
+          data: price,
+        });
+      await this.commonService.recordSystemActivity(
+        SystemActivity.add_product_price,
+        this.currUser,
+        newPrice.id,
+      );
+      return newPrice;
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        if (error.code === 'P2002') {
+          throw this.errorService.newError(
+            this.errorService.ErrConfig.E007,
+            error,
+            ProductService.name,
+          );
+        } else {
+          throw this.errorService.newError(
+            this.errorService.ErrConfig.E0019,
             error,
             ProductService.name,
           );

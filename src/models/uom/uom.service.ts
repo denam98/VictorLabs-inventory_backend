@@ -7,7 +7,9 @@ export class UomService {
 
   async getAllUom() {
     try {
-      return await this.postgreService.uom.findMany({ where: { is_active: true } });
+      return await this.postgreService.uom.findMany({
+        where: { is_active: true },
+      });
     } catch (e) {
       return Promise.reject(e);
     }

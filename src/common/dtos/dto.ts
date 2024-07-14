@@ -21,3 +21,5 @@ export * from './rm-issue-item.dto';
 export * from './batch.dto';
 export * from './batch-item.dto';
 export * from './add-product.dto';
+export * from './add-product-sub-category.dto';
+export * from './add-product-category.dto';
