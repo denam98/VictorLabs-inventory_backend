@@ -77,7 +77,7 @@ export class RawMaterialController {
   }
 
   @Delete('/category/:id')
-  async deleteRmCategory(@Param('id') id: number){
+  async deleteRmCategory(@Param('id') id: number) {
     return await this.rawMaterialService.deleteRawMaterialCategory(id);
   }
 }

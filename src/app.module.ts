@@ -30,7 +30,7 @@ import { CustomerModule } from './models/customer/customer.module';
 import { BatchModule } from './models/batch/batch.module';
 import { RMIssueModule } from './models/rm-issue/rm-issue.module';
 import { ProductModule } from './models/product/product.module';
-import { UomModule } from "./models/uom/uom.module";
+import { UomModule } from './models/uom/uom.module';
 
 @Module({
   imports: [

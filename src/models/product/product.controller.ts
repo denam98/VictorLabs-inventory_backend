@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Post,
   Put,
   Query,
@@ -63,12 +64,15 @@ export class ProductController {
     return await this.productService.updateProduct(params);
   }
 
-  @Get('/allSubCategories/:id')
-  async getAllProductSubCategories(@Param('id') categoryId: number) {
-    try {
-      return await this.productService.getAllProductSubCategories(categoryId);
-    } catch (e) {
-      return Promise.reject(e);
-    }
+  @Get('/sub_categories')
+  async getAllProductSubCategories() {
+    return await this.productService.getAllProductSubCategories();
+  }
+
+  @Get('/sub_categories/:id')
+  async getProductSubCategoryById(
+    @Param('id', ParseIntPipe) categoryId: number,
+  ) {
+    return await this.productService.getProductSubCategoryById(categoryId);
   }
 }

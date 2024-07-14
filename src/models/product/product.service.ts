@@ -94,7 +94,7 @@ export class ProductService {
     }
   }
 
-  async getAllSubCategories(): Promise<product_sub_category[]> {
+  async getAllProductSubCategories(): Promise<product_sub_category[]> {
     try {
       const productSubCategories: product_sub_category[] =
         await this.postgreService.product_sub_category.findMany({
@@ -336,6 +336,45 @@ export class ProductService {
         } else {
           throw this.errorService.newError(
             this.errorService.ErrConfig.E0019,
+            error,
+            ProductService.name,
+          );
+        }
+      }
+      throw this.errorService.newError(
+        this.errorService.ErrConfig.E0010,
+        error,
+        ProductService.name,
+      );
+    }
+  }
+
+  async getProductSubCategoryById(
+    categoryId: number,
+  ): Promise<product_sub_category> {
+    try {
+      const productSubCategory: product_sub_category =
+        await this.postgreService.product_sub_category.findFirstOrThrow({
+          where: {
+            id: categoryId,
+            is_active: true,
+          },
+          include: {
+            product: true,
+          },
+        });
+      return productSubCategory;
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        if (error.code === 'P2025') {
+          throw this.errorService.newError(
+            this.errorService.ErrConfig.E0012,
+            error,
+            ProductService.name,
+          );
+        } else {
+          throw this.errorService.newError(
+            this.errorService.ErrConfig.E0016,
             error,
             ProductService.name,
           );
