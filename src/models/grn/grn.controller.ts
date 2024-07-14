@@ -6,11 +6,10 @@ import {
   Param,
   Post,
   Put,
-  Query,
-} from '@nestjs/common';
+  Query
+} from "@nestjs/common";
 import { GrnService } from './grn.service';
 import { CreateGrnDTO } from 'src/common/dtos/dto';
-
 @Controller('api/v1/grn')
 export class GrnController {
   constructor(private grnService: GrnService) {}
@@ -32,6 +31,7 @@ export class GrnController {
 
   @Post('/add')
   async createGrn(@Body() createGrnDto: CreateGrnDTO) {
+    console.log('Came here');
     return await this.grnService.createGrn(createGrnDto);
   }
 

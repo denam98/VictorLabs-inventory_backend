@@ -88,8 +88,6 @@ model raw_material {
   uom            uom           @relation(fields: [uom_id], references: [id])
   supplier       rm_supplier[]
   srn_item       srn_item[]
-  batch_item     batch_item?
-  rm_issue_item  rm_issue_item?
   product_costing_item product_costing_item[]
 }
 
@@ -331,39 +329,35 @@ model batch {
   end_date DateTime
   is_complete Boolean
   batch_item batch_item[]
-  rm_issue rm_issue?
 }
 
 model batch_item {
   id Int @id @default(autoincrement())
   batch_id String
-  rm_id String @unique
+  rm_id String
   qty Decimal
   is_active    Boolean      @default(true)
 
-  raw_material raw_material @relation(fields: [rm_id], references: [id])
   batch batch @relation(fields: [batch_id], references: [id])
 }
 
 model rm_issue {
   id String @id @default(uuid())
-  batch_id String @unique
+  batch_id String
   issue_note_no Int
   is_active    Boolean      @default(true)
 
-  batch batch @relation(fields: [batch_id], references: [id])
   rm_issue_item rm_issue_item[]
 }
 
 model rm_issue_item {
   id Int @id @default(autoincrement())
   rm_issue_id String
-  rm_id String @unique
+  rm_id String
   qty Decimal
   issue_to String
   is_active    Boolean      @default(true)
 
-  raw_material raw_material @relation(fields: [rm_id], references: [id])
   rm_issue rm_issue @relation(fields: [rm_issue_id], references: [id])
 }
 

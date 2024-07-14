@@ -7,10 +7,8 @@ import {
   Post,
   Put,
   Query,
-  UseGuards,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
-import { JwtAuthGuard } from 'src/authentication/guards/jwt-auth.guard';
 import { AddProductDTO } from 'src/common/dtos/dto';
 
 @Controller('api/v1/product')
@@ -43,7 +41,6 @@ export class ProductController {
     return await this.productService.getProductsByIds(idList);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Post('/add')
   async addProduct(@Body() addProductDto: AddProductDTO) {
     return await this.productService.addProduct(addProductDto);
@@ -64,5 +61,14 @@ export class ProductController {
       data: addProductDto,
     };
     return await this.productService.updateProduct(params);
+  }
+
+  @Get('/allSubCategories/:id')
+  async getAllProductSubCategories(@Param('id') categoryId: number) {
+    try {
+      return await this.productService.getAllProductSubCategories(categoryId);
+    } catch (e) {
+      return Promise.reject(e);
+    }
   }
 }
