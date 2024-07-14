@@ -20,3 +20,4 @@ export * from './rm-issue.dto';
 export * from './rm-issue-item.dto';
 export * from './batch.dto';
 export * from './batch-item.dto';
+export * from './add-product.dto';

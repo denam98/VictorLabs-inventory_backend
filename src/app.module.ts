@@ -29,6 +29,7 @@ import { GrnModule } from './models/grn/grn.module';
 import { CustomerModule } from './models/customer/customer.module';
 import { BatchModule } from './models/batch/batch.module';
 import { RMIssueModule } from './models/rm-issue/rm-issue.module';
+import { ProductModule } from './models/product/product.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { RMIssueModule } from './models/rm-issue/rm-issue.module';
     CustomerModule,
     BatchModule,
     RMIssueModule,
+    ProductModule,
     PostgresConfigModule,
     ErrorModule,
     MailerModule.forRoot({
