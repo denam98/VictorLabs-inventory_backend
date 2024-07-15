@@ -148,8 +148,11 @@ export class PoService {
       });
 
       // Insert tax related data into po_tax_type table
-      const poTaxCreationPromises: Promise<po_tax_type>[] = taxTypes.map(
-        (element) => {
+
+      let poTaxCreationPromises: Promise<po_tax_type>[] = [];
+
+      if (taxTypes && taxTypes.length > 0) {
+        poTaxCreationPromises = taxTypes.map((element) => {
           const obj = {
             po_id: po.id,
             tax_type_id: element,
@@ -158,8 +161,8 @@ export class PoService {
           return this.postgreService.po_tax_type.create({
             data: obj,
           });
-        },
-      );
+        });
+      }
       await Promise.all(poTaxCreationPromises)
         .then((rslt) => {
           po['tax_type'] = rslt;
@@ -384,6 +387,7 @@ export class PoService {
           discount: createNewPoDto.discount,
           deliver_before: createNewPoDto.deliver_before,
           contact_person: createNewPoDto.contact_person,
+          po_no: createNewPoDto.po_no,
         },
       });
 
