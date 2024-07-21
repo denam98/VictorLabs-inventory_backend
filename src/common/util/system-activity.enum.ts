@@ -44,6 +44,11 @@ export enum SystemActivity {
   'add_product_costing_item' = 42,
   'add_product_price_change_reason' = 43,
   'add_product_price' = 44,
+  'add_store' = 45,
+  'update_store' = 46,
+  'delete_store' = 47,
+  'add_fg_store_item' = 48,
+  'delete_fg_store_item' = 49,
 }
 
 export enum SystemActivityMsg {
@@ -92,4 +97,9 @@ export enum SystemActivityMsg {
   'Product costing item added',
   'Product price change reason added',
   'Product price added',
+  'Store added',
+  'Store updated',
+  'Store deleted',
+  'FG Store Item added',
+  'FG Store Item deleted',
 }

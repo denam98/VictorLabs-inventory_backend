@@ -7,10 +7,8 @@ import {
   Post,
   Put,
   Query,
-  UseGuards,
 } from '@nestjs/common';
 import { RawMaterialService } from './raw-material.service';
-import { JwtAuthGuard } from 'src/authentication/guards/jwt-auth.guard';
 import { AddRawMaterialDTO } from 'src/common/dtos/dto';
 
 @Controller('api/v1/raw-material')
@@ -48,7 +46,6 @@ export class RawMaterialController {
     return await this.rawMaterialService.getRawMaterialsByIds(idList);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Post('/add')
   async addRawMaterial(@Body() addRawMaterialDto: AddRawMaterialDTO) {
     return await this.rawMaterialService.addRawMaterial(addRawMaterialDto);
