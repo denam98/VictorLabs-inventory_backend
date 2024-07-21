@@ -324,12 +324,13 @@ model customer_contact {
 }
 
 model batch {
-  id          String       @id @default(uuid())
-  name        String
-  start_date  DateTime
-  end_date    DateTime
-  is_complete Boolean
-  batch_item  batch_item[]
+  id            String          @id @default(uuid())
+  name          String
+  start_date    DateTime
+  end_date      DateTime
+  is_complete   Boolean
+  batch_item    batch_item[]
+  fg_store_item fg_store_item[]
 }
 
 model batch_item {
@@ -400,6 +401,7 @@ model product {
   is_active               Boolean              @default(true)
   product_sub_category    product_sub_category @relation(fields: [product_sub_category_id], references: [id])
   product_price           product_price[]
+  fg_store_item           fg_store_item[]
 }
 
 model product_price {
@@ -417,4 +419,25 @@ model price_change_reason {
   reason_name   String
   is_active     Boolean        @default(true)
   product_price product_price?
+}
+
+model store {
+  id            String          @id @default(uuid())
+  name          String
+  is_active     Boolean         @default(true)
+  fg_store_item fg_store_item[]
+}
+
+model fg_store_item {
+  id               Int     @id @default(autoincrement())
+  store_id         String
+  product_id       String
+  batch_id         String
+  transfer_note_no String
+  finished_by      String
+  qty              Decimal @default(0)
+  is_active        Boolean @default(true)
+  product          product @relation(fields: [product_id], references: [id])
+  batch            batch   @relation(fields: [batch_id], references: [id])
+  store            store   @relation(fields: [store_id], references: [id])
 }

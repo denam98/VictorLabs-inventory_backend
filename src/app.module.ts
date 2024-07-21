@@ -31,6 +31,8 @@ import { BatchModule } from './models/batch/batch.module';
 import { RMIssueModule } from './models/rm-issue/rm-issue.module';
 import { ProductModule } from './models/product/product.module';
 import { UomModule } from './models/uom/uom.module';
+import { StoreModule } from './models/store/store.module';
+import { FGStoreItemModule } from './models/fg-store-item/fg-store-item.module';
 
 @Module({
   imports: [
@@ -53,6 +55,8 @@ import { UomModule } from './models/uom/uom.module';
     PostgresConfigModule,
     ErrorModule,
     ProductModule,
+    StoreModule,
+    FGStoreItemModule,
     MailerModule.forRoot({
       transport: {
         host: 'smtp.gmail.com',

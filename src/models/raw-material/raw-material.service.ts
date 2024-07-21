@@ -389,7 +389,9 @@ export class RawMaterialService {
 
   async deleteRawMaterialCategory(id: number) {
     try {
-      return await this.postgreService.rm_category.delete({ where: { id: Number(id) } });
+      return await this.postgreService.rm_category.delete({
+        where: { id: id },
+      });
     } catch (e) {
       throw e;
     }
