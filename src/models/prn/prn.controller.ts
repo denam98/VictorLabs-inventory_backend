@@ -69,4 +69,10 @@ export class PrnController {
     };
     return await this.prnService.updatePrn(params);
   }
+
+  @Get('next/id')
+  async getNextId() {
+    console.log('came to controller');
+    return await this.prnService.getNextId();
+  }
 }

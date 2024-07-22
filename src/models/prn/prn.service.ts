@@ -1,12 +1,13 @@
 import { RequestService } from 'src/config/app/request.service';
 import { ErrorService } from 'src/config/error/error.service';
-import { Injectable } from '@nestjs/common';
+import { HttpCode, HttpStatus, Injectable } from "@nestjs/common";
 import { priority, prn, prn_item } from '@prisma/client';
 import { CreatePrnDTO, PrnItemDTO } from 'src/common/dtos/dto';
 import { PostgresConfigService } from 'src/config/database/postgres/config.service';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { AppConfigService } from 'src/config/app/app-config.service';
 import { SystemActivity } from 'src/common/util/system-activity.enum';
+import { Prisma } from '@prisma/client/extension';
 
 @Injectable()
 export class PrnService {
@@ -148,6 +149,7 @@ export class PrnService {
 
   async getPrn(prnId: string): Promise<prn> {
     try {
+      console.log('Came to get prn');
       const prn: prn = await this.postgreService.prn.findFirstOrThrow({
         where: {
           id: prnId,
@@ -357,5 +359,36 @@ export class PrnService {
         id: prnItemId,
       },
     });
+  }
+
+  @HttpCode(HttpStatus.OK)
+  async getNextId() {
+    console.log('came here');
+    try {
+      let maxId: string;
+      const res = await this.postgreService.prn.aggregate({
+        _max: {
+          prn_no: true,
+        },
+      });
+
+      let max = Number(res._max.prn_no);
+      max++;
+
+      if (max < 10) {
+        maxId = `0000${max}`;
+      } else if (max < 100) {
+        maxId = `000${max}`;
+      } else if (max < 1000) {
+        maxId = `00${max}`;
+      } else if (max < 10000) {
+        maxId = `0${max}`;
+      } else {
+        maxId = `${max}`;
+      }
+      return Promise.resolve({ newId: maxId });
+    } catch (e) {
+      throw e;
+    }
   }
 }

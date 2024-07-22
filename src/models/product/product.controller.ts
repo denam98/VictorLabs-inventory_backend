@@ -35,6 +35,16 @@ export class ProductController {
     return await this.productService.addProductCategory(addProductCatDto);
   }
 
+  @Put('categories/delete/:id')
+  async deleteCategory(@Param('id') id: number) {
+    return await this.productService.deleteCategory(id);
+  }
+
+  @Put('subcategories/delete/:id')
+  async deleteSubCategory(@Param('id') id: number) {
+    return await this.productService.deleteSubCategory(id);
+  }
+
   @Post('sub_categories/add')
   async addProductSubCategory(
     @Body() addProductSubCatDto: AddProductSubCategoryDTO,
@@ -80,7 +90,7 @@ export class ProductController {
     return await this.productService.updateProduct(params);
   }
 
-  @Get('/sub_categories')
+  @Get('/sub_categories/all')
   async getAllProductSubCategories() {
     return await this.productService.getAllProductSubCategories();
   }

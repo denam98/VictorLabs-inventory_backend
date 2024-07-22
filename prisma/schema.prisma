@@ -175,7 +175,6 @@ model po {
   supplier_id       String
   created_at        DateTime      @default(now())
   po_no             String?       @unique
-  grn               grn?
   supplier          supplier      @relation(fields: [supplier_id], references: [id])
   po_item           po_item[]
   po_tax_type       po_tax_type[]
@@ -213,8 +212,7 @@ model grn {
   supplier_inv_no String
   created_at      DateTime       @default(now())
   is_active       Boolean        @default(true)
-  po_id           String         @unique
-  po              po             @relation(fields: [po_id], references: [id])
+  po_id           String
   grn_item        grn_item[]
   grn_tax_type    grn_tax_type[]
   srn             srn?

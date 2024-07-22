@@ -103,17 +103,19 @@ export class ProductService {
 
   async getAllProductSubCategories(): Promise<product_sub_category[]> {
     try {
-      const productSubCategories: product_sub_category[] =
-        await this.postgreService.product_sub_category.findMany({
-          where: {
-            is_active: true,
-          },
-          include: {
-            product: true,
-            product_category: true,
-          },
-        });
-      return productSubCategories;
+      console.log('came to getAllProductSub');
+      const res = await this.postgreService.product_sub_category.findMany({
+        where: {
+          is_active: true,
+        },
+        include: {
+          product_category: true,
+        },
+      });
+
+      console.log('response form db', res);
+
+      return res;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         throw this.errorService.newError(
@@ -669,6 +671,28 @@ export class ProductService {
         error,
         ProductService.name,
       );
+    }
+  }
+
+  async deleteCategory(id: number) {
+    try {
+      return this.postgreService.product_category.update({
+        where: { id: Number(id) },
+        data: { is_active: false },
+      });
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async deleteSubCategory(id: number) {
+    try {
+      return this.postgreService.product_sub_category.update({
+        where: { id: Number(id) },
+        data: { is_active: false },
+      });
+    } catch (e) {
+      throw e;
     }
   }
 }

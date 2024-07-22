@@ -376,6 +376,7 @@ export class PoService {
   async createNewPo(createNewPoDto: CreateNewPoDto) {
     try {
       const newItems: NewPoItemDto[] = createNewPoDto.items;
+      console.log('newItems', newItems);
       let resTaxPromise;
       const res = await this.postgreService.po.create({
         data: {
@@ -414,6 +415,7 @@ export class PoService {
                 prn_item_id: item.prn_item_id,
               },
             });
+            console.log('creating the items', resCreatePoItem);
 
             if (resCreatePoItem) {
               resolve(resCreatePoItem);
@@ -423,7 +425,7 @@ export class PoService {
           });
         });
 
-        if (createNewPoDto.tax_type.length > 0) {
+        if (createNewPoDto.tax_type?.length > 0) {
           resTaxPromise = createNewPoDto.tax_type.map(async (tax) => {
             return await new Promise(async (resolve, reject) => {
               const resTaxType = await this.postgreService.po_tax_type.create({
@@ -438,8 +440,12 @@ export class PoService {
           });
         }
 
+        let taxRes;
+
         const finalRes = await Promise.all(itemPromises);
-        const taxRes = await Promise.all(resTaxPromise);
+        if (createNewPoDto.tax_type?.length > 0) {
+          taxRes = await Promise.all(resTaxPromise);
+        }
 
         if (finalRes) {
           return { ...res, items: finalRes, tax_type: taxRes };

@@ -51,4 +51,10 @@ export class GrnController {
     };
     return await this.grnService.updateGrn(params);
   }
+
+  @Get('next/id')
+  async getNextId() {
+    console.log('came to controller');
+    return await this.grnService.getNextId();
+  }
 }

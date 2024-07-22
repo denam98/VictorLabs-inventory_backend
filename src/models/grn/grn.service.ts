@@ -1,6 +1,6 @@
 import { RequestService } from 'src/config/app/request.service';
 import { ErrorService } from 'src/config/error/error.service';
-import { Injectable } from '@nestjs/common';
+import { HttpCode, HttpStatus, Injectable } from "@nestjs/common";
 import { grn, grn_item, grn_tax_type } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { AppConfigService } from 'src/config/app/app-config.service';
@@ -36,7 +36,6 @@ export class GrnService {
           grn_item: true,
           srn: true,
           grn_tax_type: true,
-          po: true,
         },
       });
       return prns;
@@ -67,7 +66,6 @@ export class GrnService {
           grn_item: true,
           srn: true,
           grn_tax_type: true,
-          po: true,
         },
       });
       return grn;
@@ -106,7 +104,6 @@ export class GrnService {
           grn_item: true,
           srn: true,
           grn_tax_type: true,
-          po: true,
         },
       });
     } catch (error) {
@@ -327,6 +324,37 @@ export class GrnService {
         error,
         GrnService.name,
       );
+    }
+  }
+
+  @HttpCode(HttpStatus.OK)
+  async getNextId() {
+    console.log('came here');
+    try {
+      let maxId: string;
+      const res = await this.postgreService.grn.aggregate({
+        _max: {
+          grn_no: true,
+        },
+      });
+
+      let max = Number(res._max.grn_no);
+      max++;
+
+      if (max < 10) {
+        maxId = `0000${max}`;
+      } else if (max < 100) {
+        maxId = `000${max}`;
+      } else if (max < 1000) {
+        maxId = `00${max}`;
+      } else if (max < 10000) {
+        maxId = `0${max}`;
+      } else {
+        maxId = `${max}`;
+      }
+      return Promise.resolve({ newId: maxId });
+    } catch (e) {
+      throw e;
     }
   }
 }
